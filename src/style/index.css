@@ -53,6 +53,7 @@
 @import "./features/collab-conflicts.css";
 @import "./features/collab-access.css";
 @import "./features/collab-polish.css";
+@import "./features/chat-mode-divider.css";
 
 /* Modals */
 @import "./modals/instruction.css";

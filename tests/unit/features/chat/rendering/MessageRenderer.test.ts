@@ -2229,3 +2229,91 @@ describe('MessageRenderer', () => {
     });
   });
 });
+
+// ============================================
+// Chat mode divider
+// ============================================
+
+let nextChatModeDividerMessageId = 0;
+
+function makeUserMessage(overrides: Partial<ChatMessage> = {}): ChatMessage {
+  nextChatModeDividerMessageId += 1;
+  return {
+    id: `divider-user-${nextChatModeDividerMessageId}`,
+    role: 'user',
+    content: 'hello',
+    timestamp: Date.now(),
+    ...overrides,
+  };
+}
+
+function makeAssistantMessage(overrides: Partial<ChatMessage> = {}): ChatMessage {
+  nextChatModeDividerMessageId += 1;
+  return {
+    id: `divider-assistant-${nextChatModeDividerMessageId}`,
+    role: 'assistant',
+    content: 'response',
+    timestamp: Date.now(),
+    ...overrides,
+  };
+}
+
+function setupRenderer() {
+  const { renderer, messagesEl } = createRenderer();
+  jest.spyOn(renderer, 'renderContent').mockResolvedValue(undefined);
+  return { renderer, messagesEl };
+}
+
+function dividerTexts(messagesEl: any): string[] {
+  return messagesEl
+    .querySelectorAll('.claudian-chat-mode-divider')
+    .map((dividerEl: any) => {
+      const label = dividerEl.querySelector('.claudian-chat-mode-divider-label');
+      return label ? label.textContent : dividerEl.textContent;
+    });
+}
+
+describe('MessageRenderer chat mode divider', () => {
+  it('draws no divider for the first user message', () => {
+    const { renderer, messagesEl } = setupRenderer();
+    renderer.addMessage(makeUserMessage({ chatMode: 'general' }));
+    expect(dividerTexts(messagesEl)).toEqual([]);
+  });
+
+  it('draws no divider while the mode stays the same', () => {
+    const { renderer, messagesEl } = setupRenderer();
+    renderer.addMessage(makeUserMessage({ chatMode: 'general' }));
+    renderer.addMessage(makeUserMessage({ chatMode: 'general' }));
+    expect(dividerTexts(messagesEl)).toEqual([]);
+  });
+
+  it('draws a divider when the mode changes', () => {
+    const { renderer, messagesEl } = setupRenderer();
+    renderer.addMessage(makeUserMessage({ chatMode: 'general' }));
+    renderer.addMessage(makeUserMessage({ chatMode: 'vault' }));
+    expect(dividerTexts(messagesEl)).toHaveLength(1);
+  });
+
+  it('ignores assistant messages when deciding', () => {
+    const { renderer, messagesEl } = setupRenderer();
+    renderer.addMessage(makeUserMessage({ chatMode: 'vault' }));
+    renderer.addMessage(makeAssistantMessage());
+    renderer.addMessage(makeUserMessage({ chatMode: 'vault' }));
+    expect(dividerTexts(messagesEl)).toEqual([]);
+  });
+
+  it('ignores messages with no recorded mode', () => {
+    const { renderer, messagesEl } = setupRenderer();
+    renderer.addMessage(makeUserMessage({ chatMode: 'vault' }));
+    renderer.addMessage(makeUserMessage({}));
+    expect(dividerTexts(messagesEl)).toEqual([]);
+  });
+
+  it('resets the remembered mode when switching conversations', () => {
+    const { renderer, messagesEl } = setupRenderer();
+    renderer.addMessage(makeUserMessage({ chatMode: 'general' }));
+    renderer.renderMessages([], () => 'Welcome');
+    renderer.addMessage(makeUserMessage({ chatMode: 'vault' }));
+    expect(dividerTexts(messagesEl)).toEqual([]);
+  });
+});

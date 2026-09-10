@@ -15,6 +15,7 @@ import {
 import { extractToolResultContent } from '../../../core/tools/toolResultContent';
 import type {
   ChatMessage,
+  ChatMode,
   CitationGroup,
   ImageAttachment,
   SubagentInfo,
@@ -79,6 +80,7 @@ export class MessageRenderer {
   private removeFileLinkHandler: () => void;
   private readonly imagePreviewModal = new ImagePreviewModal();
   private isDisposed = false;
+  private lastRenderedChatMode: ChatMode | null = null;
 
   constructor(
     plugin: FeatureHost,
@@ -184,6 +186,8 @@ export class MessageRenderer {
    * Returns the message element for content updates.
    */
   addMessage(msg: ChatMessage): HTMLElement {
+    this.renderChatModeDividerIfNeeded(msg);
+
     // Render images above message bubble for user messages
     if (msg.role === 'user' && msg.images && msg.images.length > 0) {
       const imagesEl = this.renderMessageImages(this.messagesEl, msg.images);
@@ -228,6 +232,28 @@ export class MessageRenderer {
     this.appendMessageTimestamp(msgEl, msg.role === 'user' ? msg.timestamp : msg.completedAt);
     this.scrollToBottom();
     return msgEl;
+  }
+
+  /**
+   * Marks the point where the user switched chat mode inside one conversation.
+   *
+   * Live-session only: `ChatMessage.chatMode` is not persisted, so a reopened
+   * conversation shows no dividers.
+   */
+  private renderChatModeDividerIfNeeded(msg: ChatMessage): void {
+    if (msg.role !== 'user') return;
+    const mode = msg.chatMode;
+    if (!mode) return;
+
+    const previous = this.lastRenderedChatMode;
+    this.lastRenderedChatMode = mode;
+    if (previous === null || previous === mode) return;
+
+    const dividerEl = this.messagesEl.createDiv({ cls: 'claudian-chat-mode-divider' });
+    dividerEl.createSpan({
+      cls: 'claudian-chat-mode-divider-label',
+      text: t('chat.chatMode.switched', { mode: t(`chat.chatMode.${mode}`) }),
+    });
   }
 
   updateLiveUserMessage(msg: ChatMessage): void {
@@ -295,6 +321,7 @@ export class MessageRenderer {
   ): HTMLElement {
     this.messagesEl.empty();
     this.liveMessageEls.clear();
+    this.lastRenderedChatMode = null;
 
     // Recreate welcome element after clearing
     const newWelcomeEl = createWelcomeElement(this.messagesEl, getGreeting());

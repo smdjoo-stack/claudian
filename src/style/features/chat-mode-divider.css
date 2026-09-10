@@ -1,0 +1,20 @@
+.claudian-chat-mode-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+}
+
+.claudian-chat-mode-divider::before,
+.claudian-chat-mode-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--background-modifier-border);
+}
+
+.claudian-chat-mode-divider-label {
+  white-space: nowrap;
+}
