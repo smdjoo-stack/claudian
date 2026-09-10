@@ -66,7 +66,8 @@
       "generalDesc": "Conversación simple. Sin herramientas ni acceso a la bóveda.",
       "vaultDesc": "Lee y busca en la bóveda. No modifica archivos.",
       "agentDesc": "Acceso completo. Lee, escribe y edita la bóveda.",
-      "switched": "Cambiado al modo {mode}"
+      "switched": "Cambiado al modo {mode}",
+      "changeFailed": "No se pudo cambiar el modo de chat"
     }
   },
   "collab": {

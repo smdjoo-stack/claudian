@@ -66,7 +66,8 @@
       "generalDesc": "Conversation simple. Aucun outil, aucun accès au coffre.",
       "vaultDesc": "Lit et recherche dans le coffre. Ne modifie aucun fichier.",
       "agentDesc": "Accès complet. Lit, écrit et modifie le coffre.",
-      "switched": "Passé en mode {mode}"
+      "switched": "Passé en mode {mode}",
+      "changeFailed": "Impossible de changer le mode de discussion"
     }
   },
   "collab": {

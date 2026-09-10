@@ -66,7 +66,8 @@
       "generalDesc": "도구 없이 일반 대화. 볼트에 접근하지 않습니다.",
       "vaultDesc": "볼트를 읽고 검색합니다. 파일을 수정하지 않습니다.",
       "agentDesc": "전체 권한. 볼트를 읽고 쓰고 수정합니다.",
-      "switched": "{mode} 모드로 전환"
+      "switched": "{mode} 모드로 전환",
+      "changeFailed": "채팅 모드를 변경하지 못했습니다"
     }
   },
   "collab": {

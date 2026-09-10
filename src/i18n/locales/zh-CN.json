@@ -66,7 +66,8 @@
       "generalDesc": "纯对话，不使用工具，不访问仓库。",
       "vaultDesc": "读取并搜索仓库，不修改文件。",
       "agentDesc": "完全权限，可读取、写入和编辑仓库。",
-      "switched": "已切换到{mode}模式"
+      "switched": "已切换到{mode}模式",
+      "changeFailed": "无法更改聊天模式"
     }
   },
   "collab": {

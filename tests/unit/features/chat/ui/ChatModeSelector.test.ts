@@ -61,8 +61,8 @@ describe('ChatModeSelector', () => {
 
   it('exposes the group and segments to assistive tech', () => {
     const { container } = setup();
-    expect(container.getAttribute('role')).toBe('radiogroup');
-    expect(container.children[0].getAttribute('role')).toBe('radio');
-    expect(container.children[1].getAttribute('aria-checked')).toBe('false');
+    expect(container.getAttribute('role')).toBe('group');
+    expect(container.children[0].getAttribute('type')).toBe('button');
+    expect(container.children[1].getAttribute('aria-pressed')).toBe('false');
   });
 });

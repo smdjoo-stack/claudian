@@ -31,24 +31,18 @@ export class ChatModeSelector {
   private render(): void {
     this.container.empty();
     this.segmentEls.clear();
-    this.container.setAttribute('role', 'radiogroup');
+    this.container.setAttribute('role', 'group');
     this.container.setAttribute('aria-label', t('chat.chatMode.label'));
 
     for (const mode of CHAT_MODES) {
-      const segmentEl = this.container.createDiv({
+      const segmentEl = this.container.createEl('button', {
         cls: 'claudian-chat-mode-segment',
         text: t(`chat.chatMode.${mode}`),
+        attr: { type: 'button' },
       });
       segmentEl.dataset.chatMode = mode;
-      segmentEl.setAttribute('role', 'radio');
-      segmentEl.setAttribute('tabindex', '0');
       segmentEl.setAttribute('title', t(`chat.chatMode.${mode}Desc`));
       segmentEl.addEventListener('click', () => {
-        this.select(mode);
-      });
-      segmentEl.addEventListener('keydown', (event: KeyboardEvent) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
         this.select(mode);
       });
       this.segmentEls.set(mode, segmentEl);
@@ -62,7 +56,7 @@ export class ChatModeSelector {
     for (const [mode, segmentEl] of this.segmentEls) {
       const isActive = mode === current;
       segmentEl.toggleClass('active', isActive);
-      segmentEl.setAttribute('aria-checked', isActive ? 'true' : 'false');
+      segmentEl.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     }
   }
 
@@ -73,7 +67,7 @@ export class ChatModeSelector {
         this.updateDisplay();
       })
       .catch(() => {
-        new Notice(t('chat.chatMode.label'));
+        new Notice(t('chat.chatMode.changeFailed'));
         this.updateDisplay();
       });
   }

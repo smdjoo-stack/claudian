@@ -9,9 +9,15 @@
 }
 
 .claudian-chat-mode-segment {
+  appearance: none;
+  margin: 0;
   padding: 2px 8px;
+  border: none;
   border-radius: 6px;
+  background: none;
+  box-shadow: none;
   color: var(--text-muted);
+  font: inherit;
   font-size: var(--font-ui-smaller);
   white-space: nowrap;
   cursor: pointer;
