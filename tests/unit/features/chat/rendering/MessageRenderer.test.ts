@@ -2297,7 +2297,10 @@ describe('MessageRenderer chat mode divider', () => {
   it('ignores assistant messages when deciding', () => {
     const { renderer, messagesEl } = setupRenderer();
     renderer.addMessage(makeUserMessage({ chatMode: 'vault' }));
-    renderer.addMessage(makeAssistantMessage());
+    // The assistant message carries a chatMode of its own (never true in real
+    // construction sites) so this only passes if the role guard itself skips
+    // it, not merely because the field is absent.
+    renderer.addMessage(makeAssistantMessage({ chatMode: 'general' }));
     renderer.addMessage(makeUserMessage({ chatMode: 'vault' }));
     expect(dividerTexts(messagesEl)).toEqual([]);
   });

@@ -395,6 +395,25 @@ describe('Tab provider execution ownership', () => {
     expect(coordinatorInstances).toHaveLength(1);
   });
 
+  // Regression guard for an assembly-order hazard: `ChatModeSelector`'s constructor
+  // synchronously calls `updateDisplay()`, which calls the `getChatMode` callback,
+  // while the toolbar is being built inside `buildTabRuntimeUI` -- but
+  // `assembleTabRuntime` (in this file's module under test) publishes the runtime
+  // through `runtimeRef.publish()` LAST, after the UI is constructed. If the
+  // toolbar's `getChatMode` wiring is ever changed to read the mode through
+  // `runtimeRef.requirePublished()` instead of the raw, already-available `shell`,
+  // every tab creation throws "Tab runtime callback invoked before assembly
+  // completed" synchronously during construction. It is otherwise only caught
+  // incidentally by every other test in this file that creates a tab; this test
+  // exists so a future reader sees why the ordering matters and gets a clear
+  // failure if it regresses.
+  it('does not crash building the toolbar chat mode selector before the runtime is published', async () => {
+    await expect(createTestTab({
+      plugin: createPlugin(),
+      containerEl: createMockEl() as any,
+    })).resolves.toBeDefined();
+  });
+
   it('publishes work changes from turn, provider-background, and async-subagent owners', async () => {
     const onWorkChanged = jest.fn();
     const tab = await createTestTab({

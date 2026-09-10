@@ -2,6 +2,7 @@ import { createMockEl } from '@test/helpers/MockElement';
 import { Notice } from 'obsidian';
 
 import type { ProviderExecutionErrorEvent, ProviderExecutionEvent } from '@/core/execution';
+import { buildVaultSearchDynamicSection } from '@/core/prompt/vaultSearch';
 import { ProviderRegistry } from '@/core/providers/ProviderRegistry';
 import { ProviderSettingsCoordinator } from '@/core/providers/ProviderSettingsCoordinator';
 import type { ChatMode, ImageAttachment } from '@/core/types';
@@ -2107,10 +2108,50 @@ describe('InputController chat mode projection', () => {
     expect(submission.configuration.systemInstructions.kind).toBe('explicit');
   });
 
+  it('folds app-supplied dynamic sections into General mode\'s explicit prompt', async () => {
+    const fixture = createFixture({ getChatMode: () => 'general' });
+    const getDynamicSections = jest.fn().mockResolvedValue(['## Collab Mode\nRuntime guidance.']);
+    Object.assign(fixture.plugin, {
+      getMainAgentDynamicSystemPromptSections: getDynamicSections,
+    });
+    fixture.input.value = 'hello';
+
+    await fixture.controller.sendMessage();
+
+    const submission = fixture.coordinator.execute.mock.calls[0][0] as ChatTurnSubmission;
+    expect(getDynamicSections).toHaveBeenCalledTimes(1);
+    const { systemInstructions } = submission.configuration;
+    if (systemInstructions.kind !== 'explicit') {
+      throw new Error('Expected General mode to produce explicit system instructions');
+    }
+    expect(systemInstructions.instructions).toContain('## Collab Mode\nRuntime guidance.');
+  });
+
   it('sends Vault mode read-only with the search directive', async () => {
     const submission = await sendWithMode('vault');
     expect(submission.toolPolicy).toEqual({ kind: 'read-only' });
     expect(submission.configuration.systemInstructions).toMatchObject({
+      kind: 'provider-default',
+    });
+  });
+
+  it('appends app-supplied dynamic sections after the Vault directive', async () => {
+    const fixture = createFixture({ getChatMode: () => 'vault' });
+    const getDynamicSections = jest.fn().mockResolvedValue(['## Collab Mode\nRuntime guidance.']);
+    Object.assign(fixture.plugin, {
+      getMainAgentDynamicSystemPromptSections: getDynamicSections,
+    });
+    fixture.input.value = 'hello';
+
+    await fixture.controller.sendMessage();
+
+    const submission = fixture.coordinator.execute.mock.calls[0][0] as ChatTurnSubmission;
+    expect(getDynamicSections).toHaveBeenCalledTimes(1);
+    expect(submission.configuration.systemInstructions).toEqual({
+      dynamicSections: [
+        buildVaultSearchDynamicSection(),
+        '## Collab Mode\nRuntime guidance.',
+      ],
       kind: 'provider-default',
     });
   });

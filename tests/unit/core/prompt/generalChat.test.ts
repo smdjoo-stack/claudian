@@ -30,8 +30,8 @@ describe('buildGeneralChatSystemPrompt', () => {
       .not.toContain('## Custom Instructions');
   });
 
-  // 이 단정들이 이 태스크의 존재 이유다. 일반 모드 프롬프트에 볼트 지침이
-  // 새어 들어가면 모델이 있지도 않은 도구를 쓰려 든다.
+  // These absence assertions are the reason this test exists: if Vault guidance
+  // leaks into the General-mode prompt, the model reaches for tools it does not have.
   it('excludes every Vault-only section', () => {
     const prompt = buildGeneralChatSystemPrompt({ userName: 'joo' });
     expect(prompt).not.toContain('## Path Conventions');
