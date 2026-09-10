@@ -183,6 +183,12 @@ function composeTabRuntime(
     set draftModel(value) {
       shell.draftModel = value;
     },
+    get chatMode() {
+      return shell.chatMode;
+    },
+    set chatMode(value) {
+      shell.chatMode = value;
+    },
     get providerId() {
       return shell.providerId;
     },

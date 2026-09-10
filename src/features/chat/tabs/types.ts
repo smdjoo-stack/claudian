@@ -1,5 +1,6 @@
 import type { Component, WorkspaceLeaf } from 'obsidian';
 
+import type { ChatMode } from '@/core/types/ChatMode';
 import type { ComposerInputElement } from '@/shared/composer-dropdown/types';
 
 import type { ProviderCommandDropdownConfig } from '../../../core/providers/commands/ProviderCommandCatalog';
@@ -200,6 +201,9 @@ export interface AssembledTabRuntime {
    */
   draftModel: string | null;
 
+  /** Host-owned chat mode for this tab. Projected into the provider tool policy on send. */
+  chatMode: ChatMode;
+
   /** Active provider for this tab's current conversation/runtime. */
   providerId: ProviderId;
 
@@ -242,7 +246,7 @@ export interface AssembledTabRuntime {
 
 export type TabProviderContext = Pick<
   AssembledTabRuntime,
-  'conversationId' | 'providerId' | 'lifecycleState' | 'draftModel'
+  'conversationId' | 'providerId' | 'lifecycleState' | 'draftModel' | 'chatMode'
 >;
 
 /** Stable session projection available while a tab runtime is being assembled. */

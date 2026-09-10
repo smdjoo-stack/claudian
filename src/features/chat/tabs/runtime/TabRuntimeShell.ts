@@ -1,5 +1,7 @@
 import { Notice } from 'obsidian';
 
+import { resolveInitialChatMode } from '@/core/types/ChatMode';
+
 import type { ProviderInteractionPort } from '../../../../core/execution';
 import { resolveNewConversationModel } from '../../../../core/providers/conversationModel';
 import { getEnabledProviderForModel } from '../../../../core/providers/modelRouting';
@@ -77,6 +79,10 @@ export function buildTabRuntimeShell(
   const sessionState = {
     id,
     lifecycleState: options.lifecycleState ?? 'cold',
+    chatMode: resolveInitialChatMode(
+      plugin.settings.defaultChatMode,
+      plugin.settings.lastUsedChatMode,
+    ),
     draftModel,
     providerId: initialProviderId,
     conversationId: conversation?.id ?? null,
@@ -131,6 +137,12 @@ export function buildTabRuntimeShell(
     },
     set draftModel(value) {
       session.draftModel = value;
+    },
+    get chatMode() {
+      return session.chatMode;
+    },
+    set chatMode(value) {
+      session.chatMode = value;
     },
     get providerId() {
       return session.providerId;

@@ -4,8 +4,11 @@ import type { Conversation } from '../../../core/types';
 import type { FeatureHost } from '../../FeatureHost';
 import type { TabProviderContext } from './types';
 
+/** Only the fields this module actually reads, so callers holding a narrower tab projection still satisfy it. */
+type TabProviderIdSource = Pick<TabProviderContext, 'conversationId' | 'draftModel' | 'providerId'>;
+
 function getStoredConversationProviderId(
-  tab: TabProviderContext,
+  tab: TabProviderIdSource,
   plugin: FeatureHost,
 ): ProviderId {
   if (tab.conversationId) {
@@ -26,7 +29,7 @@ function getStoredConversationProviderId(
 }
 
 export function getTabProviderId(
-  tab: TabProviderContext,
+  tab: TabProviderIdSource,
   plugin: FeatureHost,
   conversation?: Conversation | null,
 ): ProviderId {

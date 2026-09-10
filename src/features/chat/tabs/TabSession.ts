@@ -1,8 +1,11 @@
+import type { ChatMode } from '@/core/types/ChatMode';
+
 import type { ProviderId } from '../../../core/providers/types';
 import type { ChatExecutionCoordinator } from '../execution/ChatExecutionCoordinator';
 import type { TabLifecycleState } from './types';
 
 export interface TabSessionState {
+  chatMode: ChatMode;
   conversationId: string | null;
   draftModel: string | null;
   id: string;
@@ -33,6 +36,8 @@ export class TabSession {
   set conversationId(value: string | null) { this.state.conversationId = value; }
   get draftModel(): string | null { return this.state.draftModel; }
   set draftModel(value: string | null) { this.state.draftModel = value; }
+  get chatMode(): ChatMode { return this.state.chatMode; }
+  set chatMode(value: ChatMode) { this.state.chatMode = value; }
   get executionCoordinator(): ChatExecutionCoordinator { return this.coordinator; }
   get acceptsIntents(): boolean { return this.intentAdmissionPauseDepth === 0; }
   get userOwnershipRevision(): number { return this.userOwnershipRevisionValue; }
