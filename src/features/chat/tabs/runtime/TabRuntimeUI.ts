@@ -350,7 +350,6 @@ function buildInputToolbar(
         getTabChatUIConfig(tab, plugin).applyModeSelection?.(mode, settings);
       });
       tab.ui.modeSelector.updateDisplay();
-      tab.ui.chatModeSelector.updateDisplay();
       tab.ui.modeSelector.renderOptions();
       onUserModified();
     },

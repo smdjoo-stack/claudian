@@ -1,7 +1,6 @@
 import { Notice, setIcon } from 'obsidian';
 
-import type { ChatMode } from '@/core/types/ChatMode';
-import { FALLBACK_CHAT_MODE } from '@/core/types/ChatMode';
+import { type ChatMode, FALLBACK_CHAT_MODE } from '@/core/types/ChatMode';
 import type { ComposerInputElement } from '@/shared/composer-dropdown/types';
 
 import {

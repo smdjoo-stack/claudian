@@ -54,4 +54,15 @@ describe('setTabChatMode', () => {
     expect(plugin.settings.lastUsedChatMode).toBe('vault');
     expect(tab.chatMode).toBe('vault');
   });
+
+  it('restores the previous mode and propagates the rejection when the settings write fails', async () => {
+    const plugin = makePlugin('general');
+    const failure = new Error('synthetic settings write failure');
+    plugin.mutateSettings.mockRejectedValueOnce(failure);
+    const tab = makeTab('general');
+
+    await expect(setTabChatMode(tab as never, plugin as never, 'agent')).rejects.toBe(failure);
+
+    expect(tab.chatMode).toBe('general');
+  });
 });

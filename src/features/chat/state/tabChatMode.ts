@@ -26,7 +26,14 @@ export async function setTabChatMode(
   if (previous === next && normalizeChatMode(plugin.settings.lastUsedChatMode) === next) {
     return;
   }
-  await plugin.mutateSettings((settings) => {
-    settings.lastUsedChatMode = next;
-  });
+  try {
+    await plugin.mutateSettings((settings) => {
+      settings.lastUsedChatMode = next;
+    });
+  } catch (error) {
+    // Keep the tab's reported mode consistent with the failure the caller sees:
+    // if the settings write did not take, the tab did not really switch either.
+    tab.chatMode = previous;
+    throw error;
+  }
 }

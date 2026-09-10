@@ -37,6 +37,16 @@ function providerDefaultInstructions(
     : { kind: 'provider-default' };
 }
 
+/**
+ * `dynamicSections` is passed through unchanged in every mode, even though its
+ * only current producer -- the Collab-mode system prompt -- tells the model to
+ * use file tools and a loopback RPC endpoint, neither of which works once the
+ * tool policy is `passive` (General) or `read-only` (Vault). That mismatch is
+ * accepted deliberately: these sections also carry user- and host-supplied
+ * instructions that are not Collab-specific, and the tool policy already
+ * enforces what the model can actually do regardless of what the prompt text
+ * suggests. Do not "fix" this by filtering or gating the pass-through here.
+ */
 function systemInstructionsFor(
   mode: ChatMode,
   input: ChatModeProjectionInput,
