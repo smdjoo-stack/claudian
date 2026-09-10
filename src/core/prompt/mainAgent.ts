@@ -28,7 +28,7 @@ function getRuntimeContext(
 ${lines.join('\n')}`;
 }
 
-function getUserMessageContext(): string {
+export function getUserMessageContext(): string {
   return `## User Message Context
 
 The user's query comes first, followed by optional Claudian XML context tags. Treat content inside \`<![CDATA[...]]>\` as the user's literal text.
@@ -102,7 +102,7 @@ function getDynamicSections(dynamicSections?: string[]): string {
   return sections.join('\n\n');
 }
 
-function getCustomInstructions(customPrompt: string | undefined): string {
+export function getCustomInstructions(customPrompt: string | undefined): string {
   const instructions = customPrompt?.trim();
   return instructions ? `## Custom Instructions\n\n${instructions}` : '';
 }
