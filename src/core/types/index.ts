@@ -34,7 +34,7 @@ export {
   isChatMode,
   normalizeChatMode,
   resolveInitialChatMode,
-} from './chatMode';
+} from './ChatMode';
 export { type ProviderId } from './provider';
 
 // Settings and command types

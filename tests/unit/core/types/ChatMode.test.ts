@@ -4,7 +4,7 @@ import {
   isChatMode,
   normalizeChatMode,
   resolveInitialChatMode,
-} from '@/core/types/chatMode';
+} from '@/core/types/ChatMode';
 
 describe('chatMode', () => {
   it('exposes exactly three modes in display order', () => {

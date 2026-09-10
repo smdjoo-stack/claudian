@@ -4,7 +4,6 @@
  * Provider backends never see this value; the chat feature projects it into a
  * `ProviderToolPolicy` and `ProviderSystemInstructions` at submission time.
  */
-// eslint-disable-next-line local/file-naming -- Brief specifies lowercase chatMode.ts to match siblings
 export type ChatMode = 'general' | 'vault' | 'agent';
 
 /** Display order in the composer's mode selector. */
