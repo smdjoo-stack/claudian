@@ -1013,6 +1013,25 @@ describe('ClaudeExecutionBackend', () => {
     expect(interactionPort.requestApproval).not.toHaveBeenCalled();
   });
 
+  it('leaves tools unconstrained under the provider default policy', async () => {
+    sdkMock.setMockMessages([
+      { type: 'result', subtype: 'success' },
+    ], { appendResult: false });
+    const { services } = createServices();
+    const session = new ClaudeExecutionBackend(createHost(), services)
+      .createSession(createConfig({
+        lifecycle: 'ephemeral',
+      }));
+
+    await collectEvents(session.execute(createRequest({
+      toolPolicy: { kind: 'provider-default' },
+    })).events);
+
+    const options = sdkMock.getLastOptions();
+    expect(options?.tools).toBeUndefined();
+    expect(options?.hooks?.PreToolUse).toBeUndefined();
+  });
+
   it('applies model, effort, and permission changes without replacing a compatible persistent query', async () => {
     sdkMock.setMockMessages([
       { type: 'system', subtype: 'init', session_id: 'session-1' },
