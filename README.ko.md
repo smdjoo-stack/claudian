@@ -48,9 +48,16 @@ Jclaudian은 입력창 툴바에 3단 모드 선택기를 추가합니다:
 
 업스트림과 같습니다:
 
-- Obsidian 1.13.0 이상, 데스크톱 전용
-- 하네스 CLI 중 최소 하나: [Claude Code](https://code.claude.com/docs/en/overview), [Codex](https://github.com/openai/codex), [Grok](https://github.com/xai-org/grok-build), [OpenCode](https://github.com/anomalyco/opencode), [Pi](https://github.com/earendil-works/pi)
+- 하네스 중 최소 하나:
+  - [Claude Code CLI](https://code.claude.com/docs/en/overview)
+  - [Codex CLI](https://github.com/openai/codex)
+  - [Grok Build](https://github.com/xai-org/grok-build)
+  - [OpenCode](https://github.com/anomalyco/opencode)
+  - [Pi](https://github.com/earendil-works/pi)
 - 사용하는 CLI에 맞는 구독 또는 API 제공자
+- Obsidian v1.13.0 이상
+- 데스크톱 전용 (macOS, Linux, Windows)
+- Collab 모드는 [Git](https://git-scm.com/install/)이 필요합니다
 
 ## 설치
 
@@ -93,9 +100,23 @@ GUI로 실행한 Obsidian은 셸의 `PATH`를 물려받지 않습니다. 그래�
 
 ## 그 외 모든 기능
 
-나머지 기능은 전부 업스트림 Claudian의 것이고 그쪽에 문서화되어 있습니다: 인라인 편집, 슬래시 커맨드와 스킬, 볼트 파일·폴더 `@mention`, instruction 모드, MCP 서버, 탭과 세션 관리, 실험적 Collab 모드. [업스트림 README](https://github.com/YishenTu/claudian#readme)와 [claudian.md](https://claudian.md/)를 참고하세요.
+나머지 기능은 전부 업스트림 Claudian의 것입니다: 인라인 편집, 슬래시 커맨드와 스킬, 볼트 파일·폴더 `@mention`, instruction 모드, MCP 서버, 탭과 세션 관리.
+
+**Collab 모드**(실험적)는 로컬 네트워크를 통해 다른 사용자와 프로젝트를 공유하며 협업하는 기능입니다. [자세히](https://claudian.md/docs/collab-mode/).
+
+업스트림 전체 문서는 [claudian.md](https://claudian.md/) 또는 [업스트림 README](https://github.com/YishenTu/claudian#readme)를 보세요.
 
 이 포크의 알려진 한계: 메시지 흐름의 모드 전환 구분선은 **현재 세션에서만** 보입니다. Claudian은 메시지 본문을 저장하지 않고 프로바이더의 트랜스크립트에서 재구성하므로, 예전 대화를 다시 열면 구분선이 없습니다. 모드 자체는 정상 동작합니다.
+
+## 개인정보와 데이터 사용
+
+업스트림과 동일하며, 포크가 조용히 빠뜨려서는 안 되는 종류의 정보라 여기에 다시 적습니다:
+
+- **API로 전송되는 것**: 입력한 내용, 첨부한 파일, 이미지, 도구 호출 결과. 선택한 프로바이더에 따라 Anthropic(Claude), OpenAI(Codex), xAI(Grok), 또는 OpenCode·Pi에 설정된 제공자로 전송됩니다. 전송 대상은 프로바이더 설정과 환경 변수로 바꿀 수 있습니다.
+- **Collab LAN 트래픽**: Collab 프로젝트를 직접 호스트하거나 동기화할 때, 프로젝트 Git 데이터와 인증된 조정 메타데이터가 **초대된 팀원의 기기 사이로 로컬 네트워크를 통해 직접** 이동합니다. Collab 모드 자체는 프로젝트 데이터를 Claudian 클라우드 서비스나 제3자에게 보내지 않습니다.
+- **텔레메트리나 요청하지 않은 백그라운드 활동 없음**: Claudian은 텔레메트리 비콘을 실행하지 않습니다. UI 폴링 타이머는 로컬 Obsidian·에디터의 선택 상태만 읽습니다. 네트워크 활동은 명시적인 프로바이더 런타임 작업, 설정된 MCP 엔드포인트, 요청에 답하기 위한 프로바이더 SDK·CLI 호출, 그리고 명시적으로 시작한 Collab LAN 작업으로 한정됩니다.
+
+채팅 모드는 위 내용을 바꾸지 않습니다. 일반 모드는 도구를 부여하지 않으므로, 일반 모드 턴은 메시지와 첨부한 컨텍스트를 전송하되 파일 읽기는 발생시키지 않습니다.
 
 ## 출처
 
@@ -125,6 +146,7 @@ GUI로 실행한 Obsidian은 셸의 `PATH`를 물려받지 않습니다. 그래�
 
 - `src/providers/**`와 `src/core/execution/**`는 한 줄도 손대지 않았습니다. 이 기능이 의존하는 도구 정책(`passive`, `read-only`, `provider-default`)은 이미 존재했고 모든 프로바이더 백엔드가 이미 구현하고 있었기 때문에, 프로바이더 코드를 바꿀 필요가 없었습니다. 그래서 **에이전트 모드는 Claudian이 원래 보내던 요청과 바이트 단위로 동일한 요청**을 만듭니다.
 - 내부 식별자: CSS 클래스, 뷰 타입, `.claudian` 저장 폴더는 원래 이름을 유지합니다. 플러그인의 공개 정체성(`id`, `name`)만 바꿨기 때문에 기존 세션 데이터를 그대로 찾습니다.
+- `package.json`의 npm 패키지 이름도 `claudian`으로 유지합니다. npm에 발행되지 않는 사설 필드이고, `bun.lock`과 `package-lock.json` 양쪽에 그 이름이 기록되어 있습니다. CI가 `--frozen-lockfile`로 검증하므로 바꾸면 빌드가 깨지고, 사용자에게 보이는 이득은 없습니다.
 
 ### 설계 문서
 

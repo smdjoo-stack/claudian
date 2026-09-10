@@ -48,9 +48,16 @@ One thing General mode deliberately does **not** block: context you attach yours
 
 Same as upstream:
 
-- Obsidian 1.13.0 or newer, desktop only
-- At least one harness CLI: [Claude Code](https://code.claude.com/docs/en/overview), [Codex](https://github.com/openai/codex), [Grok](https://github.com/xai-org/grok-build), [OpenCode](https://github.com/anomalyco/opencode), or [Pi](https://github.com/earendil-works/pi)
-- A subscription or API provider for whichever CLI you use
+- At least one of the following harnesses:
+  - [Claude Code CLI](https://code.claude.com/docs/en/overview)
+  - [Codex CLI](https://github.com/openai/codex)
+  - [Grok Build](https://github.com/xai-org/grok-build)
+  - [OpenCode](https://github.com/anomalyco/opencode)
+  - [Pi](https://github.com/earendil-works/pi)
+- A compatible subscription or API provider for whichever CLI you use
+- Obsidian v1.13.0+
+- Desktop only (macOS, Linux, Windows)
+- Collab Mode requires [Git](https://git-scm.com/install/)
 
 ## Install
 
@@ -93,9 +100,23 @@ Obsidian launched from the GUI does not inherit your shell's `PATH`, so a CLI in
 
 ## Everything else
 
-Every other feature is upstream Claudian's and is documented there: inline edit, slash commands and skills, `@mention` of vault files and folders, instruction mode, MCP servers, tabs and session management, and the experimental Collab mode. See the [upstream README](https://github.com/YishenTu/claudian#readme) and [claudian.md](https://claudian.md/).
+Every other feature is upstream Claudian's: inline edit, slash commands and skills, `@mention` of vault files and folders, instruction mode, MCP servers, and tabs and session management.
+
+**Collab Mode** (experimental) lets you collaborate on shared projects with other users over your local network. [Learn more](https://claudian.md/docs/collab-mode/).
+
+Visit [claudian.md](https://claudian.md/) for the full upstream documentation, or the [upstream README](https://github.com/YishenTu/claudian#readme).
 
 Known limitation of this fork: the mode-switch divider in the message flow is live-session only. Claudian does not store message bodies — it rebuilds them from the provider's own transcript — so reopening an old conversation shows no dividers. The modes themselves work normally.
+
+## Privacy & Data Use
+
+Unchanged from upstream, and restated here because it is the kind of thing a fork must not quietly drop:
+
+- **Sent to API**: Your input, attached files, images, and tool call outputs. Depending on the selected provider, data is sent to Anthropic (Claude), OpenAI (Codex), xAI (Grok), or the providers configured in OpenCode or Pi. The destination can be configured through provider settings and environment variables.
+- **Collab LAN traffic**: When you explicitly Host or synchronize a Collab Project, Project Git data and authenticated coordination metadata travel directly between invited teammates' devices on the local network. Collab Mode itself does not send Project data to a Claudian cloud service or any third party.
+- **No telemetry or unsolicited background activity**: Claudian does not run telemetry beacons. UI polling timers read local Obsidian/editor selection state only. Network activity is limited to explicit provider runtime work, configured MCP endpoints, provider SDK/CLI calls needed to answer your requests, and explicitly started Collab LAN work.
+
+Chat modes do not change any of the above. General mode grants no tools, so a General-mode turn sends your message and attached context but produces no file reads.
 
 ## Provenance
 
@@ -125,6 +146,7 @@ Deliberately **not** changed:
 
 - Nothing under `src/providers/**` or `src/core/execution/**`. The tool policies this feature relies on (`passive`, `read-only`, `provider-default`) already existed and every provider backend already implemented them, so no provider code needed to change. Agent mode therefore produces byte-for-byte the same request Claudian always did.
 - Internal identifiers: CSS classes, view types and the `.claudian` storage folder keep their original names. Only the plugin's public identity (`id`, `name`) was renamed, so your existing session data is still found.
+- The npm package name in `package.json` also stays `claudian`. It is a private field that is never published, and both `bun.lock` and `package-lock.json` record it — CI validates them with `--frozen-lockfile`, so renaming it would break the build for no user-visible gain.
 
 ### Design documents
 
