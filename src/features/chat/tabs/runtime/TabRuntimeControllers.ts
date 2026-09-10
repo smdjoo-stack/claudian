@@ -1,6 +1,8 @@
 import type { Component } from 'obsidian';
 import { Notice } from 'obsidian';
 
+import { getTabChatMode } from '@/features/chat/state/tabChatMode';
+
 import { resolveNewConversationModel } from '../../../../core/providers/conversationModel';
 import { getEnabledProviderForModel } from '../../../../core/providers/modelRouting';
 import { ProviderRegistry } from '../../../../core/providers/ProviderRegistry';
@@ -338,6 +340,7 @@ export function buildTabRuntimeControllers(
     getExecutionCoordinator: () => shell.executionCoordinator,
     getSubagentManager: () => services.subagentManager,
     getTabProviderId: () => getTabProviderId(runtimeRef.requirePublished(), plugin),
+    getChatMode: () => getTabChatMode(runtimeRef.requirePublished()),
     canStartTurn: () => shell.session.acceptsIntents,
     turnOwner: shell.session,
     ensureExecutionInitialized,

@@ -1,5 +1,7 @@
 import { Notice, setIcon } from 'obsidian';
 
+import type { ChatMode } from '@/core/types/ChatMode';
+import { FALLBACK_CHAT_MODE } from '@/core/types/ChatMode';
 import type { ComposerInputElement } from '@/shared/composer-dropdown/types';
 
 import {
@@ -45,6 +47,7 @@ import { type InlineAskQuestionConfig, InlineAskUserQuestion } from '../renderin
 import type { MessageRenderer } from '../rendering/MessageRenderer';
 import { setToolIcon } from '../rendering/ToolCallRenderer';
 import type { SubagentManager } from '../services/SubagentManager';
+import { projectChatMode } from '../state/ChatModeProjection';
 import type { ChatState } from '../state/ChatState';
 import type { ChatTurnRequest, QueuedMessage, TabReviewOutcome } from '../state/types';
 import type { ImageContextManager } from '../ui/ImageContext';
@@ -116,6 +119,8 @@ export interface InputControllerDeps {
   getSubagentManager: () => SubagentManager;
   /** Authoritative tab/conversation provider, independent of runtime lifecycle. */
   getTabProviderId?: () => ProviderId;
+  /** Host-owned chat mode for this tab. Absent means General. */
+  getChatMode?: () => ChatMode;
   /** Returns true if ready. */
   ensureExecutionInitialized?: () => Promise<boolean>;
   openConversation?: (conversationId: string) => Promise<void>;
@@ -417,6 +422,7 @@ export class InputController {
       displayContent,                // Original user input (for UI display)
       timestamp: Date.now(),
       images: imagesForMessage,
+      chatMode: this.getChatMode(),
     };
     state.addMessage(userMsg);
     state.hasPendingConversationSave = true;
@@ -956,6 +962,10 @@ export class InputController {
     return admittedRequest;
   }
 
+  private getChatMode(): ChatMode {
+    return this.deps.getChatMode?.() ?? FALLBACK_CHAT_MODE;
+  }
+
   private createExecutionSubmission(
     displayContent: string,
     request: ChatTurnRequest,
@@ -981,6 +991,15 @@ export class InputController {
       : undefined;
     const images = [...(request.images ?? [])];
     const existingUserTurns = this.deps.state.messages.filter(isCanonicalUserMessage).length;
+    const projection = projectChatMode(this.getChatMode(), {
+      dynamicSections: dynamicSystemPromptSections,
+      ...(typeof settings.systemPrompt === 'string'
+        ? { customPrompt: settings.systemPrompt }
+        : {}),
+      ...(typeof settings.userName === 'string'
+        ? { userName: settings.userName }
+        : {}),
+    });
 
     return {
       canonicalText: request.text,
@@ -991,12 +1010,7 @@ export class InputController {
         ...(permissionMode ? { permissionMode } : {}),
         ...(reasoning ? { reasoning } : {}),
         ...(serviceTier ? { serviceTier } : {}),
-        systemInstructions: dynamicSystemPromptSections.length > 0
-          ? {
-              dynamicSections: [...dynamicSystemPromptSections],
-              kind: 'provider-default',
-            }
-          : { kind: 'provider-default' },
+        systemInstructions: projection.systemInstructions,
       },
       context: {
         ...(request.browserSelection
@@ -1021,7 +1035,7 @@ export class InputController {
       ...(user && assistant ? { messages: { assistant, user } } : {}),
       rawDisplayText: displayContent,
       timestamp: user?.timestamp ?? Date.now(),
-      toolPolicy: { kind: 'provider-default' },
+      toolPolicy: projection.toolPolicy,
       userTurnOrdinal: user ? existingUserTurns : existingUserTurns + 1,
     };
   }
@@ -1402,6 +1416,7 @@ export class InputController {
         timestamp: Date.now(),
         linkedContentPath: expected?.linkedContentPath,
         images,
+        chatMode: this.getChatMode(),
         ...(chunk.itemId ? { userMessageId: chunk.itemId } : {}),
       };
       this.deps.state.addMessage(userMessage);

@@ -4,7 +4,7 @@ import { Notice } from 'obsidian';
 import type { ProviderExecutionErrorEvent, ProviderExecutionEvent } from '@/core/execution';
 import { ProviderRegistry } from '@/core/providers/ProviderRegistry';
 import { ProviderSettingsCoordinator } from '@/core/providers/ProviderSettingsCoordinator';
-import type { ImageAttachment } from '@/core/types';
+import type { ChatMode, ImageAttachment } from '@/core/types';
 import {
   InputController,
   type InputControllerDeps,
@@ -416,7 +416,7 @@ describe('InputController coordinator execution', () => {
       context: { linkedContent: { path: 'Projects' } },
       rawDisplayText: 'first',
       userTurnOrdinal: 1,
-      toolPolicy: { kind: 'provider-default' },
+      toolPolicy: { kind: 'passive' },
     });
     expect(first.conversationHistory).toEqual([]);
     expect(second.userTurnOrdinal).toBe(2);
@@ -426,7 +426,7 @@ describe('InputController coordinator execution', () => {
   });
 
   it('adds app guidance to provider-default system instructions without changing input', async () => {
-    const fixture = createFixture();
+    const fixture = createFixture({ getChatMode: () => 'agent' });
     const getDynamicSections = jest.fn().mockResolvedValue(['## Collab Mode\nRuntime guidance.']);
     Object.assign(fixture.plugin, {
       getMainAgentDynamicSystemPromptSections: getDynamicSections,
@@ -450,7 +450,7 @@ describe('InputController coordinator execution', () => {
   });
 
   it('continues without dynamic sections when app guidance is unavailable', async () => {
-    const fixture = createFixture();
+    const fixture = createFixture({ getChatMode: () => 'agent' });
     Object.assign(fixture.plugin, {
       getMainAgentDynamicSystemPromptSections: jest.fn()
         .mockRejectedValue(new Error('synthetic runtime failure')),
@@ -466,7 +466,7 @@ describe('InputController coordinator execution', () => {
   });
 
   it('keeps stable dynamic system sections for provider slash-command execution', async () => {
-    const fixture = createFixture();
+    const fixture = createFixture({ getChatMode: () => 'agent' });
     const getDynamicSections = jest.fn().mockResolvedValue(['stable guidance']);
     Object.assign(fixture.plugin, {
       getMainAgentDynamicSystemPromptSections: getDynamicSections,
@@ -2072,5 +2072,66 @@ describe('InputController coordinator execution', () => {
 
     const submission = fixture.coordinator.execute.mock.calls[0][0] as ChatTurnSubmission;
     expect(submission.context).not.toHaveProperty('linkedContent');
+  });
+});
+
+describe('InputController chat mode projection', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(ProviderRegistry.getCapabilities).mockReturnValue({
+      providerId: 'claude',
+      supportsFork: true,
+      supportsNativeHistory: true,
+      supportsTurnSteer: true,
+    } as any);
+    jest.mocked(ProviderSettingsCoordinator.getProviderSettingsSnapshot).mockReturnValue({
+      effortLevel: 'high',
+      model: 'claude-model',
+      permissionMode: 'normal',
+      serviceTier: 'standard',
+    });
+  });
+
+  async function sendWithMode(chatMode: ChatMode | undefined): Promise<ChatTurnSubmission> {
+    const fixture = createFixture(
+      chatMode === undefined ? {} : { getChatMode: () => chatMode },
+    );
+    fixture.input.value = 'hello';
+    await fixture.controller.sendMessage();
+    return fixture.coordinator.execute.mock.calls[0][0] as ChatTurnSubmission;
+  }
+
+  it('sends General mode with no tools and an explicit prompt', async () => {
+    const submission = await sendWithMode('general');
+    expect(submission.toolPolicy).toEqual({ kind: 'passive' });
+    expect(submission.configuration.systemInstructions.kind).toBe('explicit');
+  });
+
+  it('sends Vault mode read-only with the search directive', async () => {
+    const submission = await sendWithMode('vault');
+    expect(submission.toolPolicy).toEqual({ kind: 'read-only' });
+    expect(submission.configuration.systemInstructions).toMatchObject({
+      kind: 'provider-default',
+    });
+  });
+
+  it('sends Agent mode exactly as before', async () => {
+    const submission = await sendWithMode('agent');
+    expect(submission.toolPolicy).toEqual({ kind: 'provider-default' });
+    expect(submission.configuration.systemInstructions).toEqual({
+      kind: 'provider-default',
+    });
+  });
+
+  it('defaults to General when the tab exposes no mode', async () => {
+    const submission = await sendWithMode(undefined);
+    expect(submission.toolPolicy).toEqual({ kind: 'passive' });
+  });
+
+  it('records the mode on the user message so the divider can find it', async () => {
+    const fixture = createFixture({ getChatMode: () => 'vault' });
+    fixture.input.value = 'hello';
+    await fixture.controller.sendMessage();
+    expect(fixture.state.messages[0]).toMatchObject({ chatMode: 'vault', role: 'user' });
   });
 });

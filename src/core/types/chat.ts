@@ -1,3 +1,4 @@
+import type { ChatMode } from './ChatMode';
 import type { SDKToolUseResult } from './diff';
 import type { ProviderId } from './provider';
 import type { SubagentMode, ToolCallInfo, ToolProviderPayload } from './tools';
@@ -114,6 +115,12 @@ export interface ChatMessage {
   images?: ImageAttachment[];
   /** Canonical submitted input correlated from Claudian-owned persistence. */
   executionInput?: ExecutionInputSnapshot;
+  /**
+   * Chat mode this turn was sent in. Live-session only: messages are rebuilt
+   * from the provider transcript on reload, so this does not survive a restart.
+   * Used to draw the mode-switch divider.
+   */
+  chatMode?: ChatMode;
   /** True if this message represents a user interrupt (from SDK storage). */
   isInterrupt?: boolean;
   /** True if this message is rebuilt context sent to SDK on session reset (should be hidden). */
