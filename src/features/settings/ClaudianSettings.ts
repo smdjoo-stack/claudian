@@ -10,6 +10,8 @@ import { ProviderSettingsCoordinator } from '../../core/providers/ProviderSettin
 import { ProviderWorkspaceRegistry } from '../../core/providers/ProviderWorkspaceRegistry';
 import type { ProviderId } from '../../core/providers/types';
 import { AgentSkillRepository } from '../../core/skills/AgentSkillRepository';
+import type { ChatModePreference } from '../../core/types/ChatMode';
+import { CHAT_MODES } from '../../core/types/ChatMode';
 import type {
   ChatViewPlacement,
   DualPaneSide,
@@ -368,6 +370,23 @@ export class ClaudianSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             await this.plugin.mutateSettings((settings) => {
               settings.chatViewPlacement = value as ChatViewPlacement;
+            });
+          });
+      });
+
+    new Setting(container)
+      .setName(t('settings.defaultChatMode.name'))
+      .setDesc(t('settings.defaultChatMode.desc'))
+      .addDropdown((dropdown) => {
+        dropdown.addOption('last-used', t('settings.defaultChatMode.lastUsed'));
+        for (const mode of CHAT_MODES) {
+          dropdown.addOption(mode, t(`chat.chatMode.${mode}`));
+        }
+        dropdown
+          .setValue(this.plugin.settings.defaultChatMode)
+          .onChange(async (value) => {
+            await this.plugin.mutateSettings((settings) => {
+              settings.defaultChatMode = value as ChatModePreference;
             });
           });
       });
