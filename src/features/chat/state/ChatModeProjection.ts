@@ -1,11 +1,10 @@
-import type { ChatMode } from '@/core/types/ChatMode';
-
 import type {
   ProviderSystemInstructions,
   ProviderToolPolicy,
-} from '../../../core/execution';
-import { buildGeneralChatSystemPrompt } from '../../../core/prompt/generalChat';
-import { buildVaultSearchDynamicSection } from '../../../core/prompt/vaultSearch';
+} from '@/core/execution';
+import { buildGeneralChatSystemPrompt } from '@/core/prompt/generalChat';
+import { buildVaultSearchDynamicSection } from '@/core/prompt/vaultSearch';
+import type { ChatMode } from '@/core/types/ChatMode';
 
 export interface ChatModeProjectionInput {
   /** Instruction-mode and other host-supplied prompt sections. */
