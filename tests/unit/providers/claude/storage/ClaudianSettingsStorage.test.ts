@@ -203,6 +203,7 @@ describe('ClaudianSettingsStorage', () => {
       mockAdapter.exists.mockResolvedValue(true);
       mockAdapter.read.mockResolvedValue(JSON.stringify({
         lastSelectedChatModel: null,
+        lastUsedChatMode: 'agent',
       }));
 
       const result = await storage.load();
@@ -467,6 +468,7 @@ describe('ClaudianSettingsStorage', () => {
       mockAdapter.exists.mockResolvedValue(true);
       mockAdapter.read.mockResolvedValue(JSON.stringify({
         lastSelectedChatModel: null,
+        lastUsedChatMode: 'agent',
         providerConfigs: {
           claude: {
             cliPathsByHost: {
@@ -1127,6 +1129,7 @@ describe('ClaudianSettingsStorage', () => {
       mockAdapter.exists.mockResolvedValue(true);
       mockAdapter.read.mockResolvedValue(JSON.stringify({
         lastSelectedChatModel: null,
+        lastUsedChatMode: 'agent',
         model: 'claude-haiku-4-5',
         userName: 'ExistingUser',
       }));

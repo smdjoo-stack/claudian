@@ -1,3 +1,5 @@
+import { type ChatMode, normalizeChatMode } from '@/core/types/ChatMode';
+
 import {
   CLAUDIAN_SETTINGS_PATH,
   LEGACY_CLAUDIAN_SETTINGS_PATH,
@@ -107,6 +109,10 @@ function shouldPersistChatViewPlacementMigration(
       'chatViewPlacement' in stored
       && stored.chatViewPlacement !== normalized
     );
+}
+
+function shouldPersistChatModeMigration(stored: Record<string, unknown>): boolean {
+  return !Object.prototype.hasOwnProperty.call(stored, 'lastUsedChatMode');
 }
 
 function normalizeEnableDualPane(value: unknown): boolean {
@@ -491,6 +497,15 @@ export class ClaudianSettingsStorage {
     const collabEnabled = normalizeCollabEnabled(stored.collabEnabled);
     const collabProjectsFolder = normalizeCollabProjectsFolder(stored.collabProjectsFolder);
     const collabGitPath = normalizeCollabGitPath(stored.collabGitPath);
+    const hasStoredChatMode = Object.prototype.hasOwnProperty.call(
+      stored,
+      'lastUsedChatMode',
+    );
+    // A settings file that predates chat modes belongs to someone who had full
+    // vault access. Keep them in Agent mode rather than silently taking it away.
+    const lastUsedChatMode: ChatMode = hasStoredChatMode
+      ? normalizeChatMode(stored.lastUsedChatMode)
+      : 'agent';
     const hasCanonicalPinnedPaths = Object.prototype.hasOwnProperty.call(
       stored,
       'pinnedLinkedContentPaths',
@@ -529,6 +544,7 @@ export class ClaudianSettingsStorage {
       sessionManagerOrganization,
       pinnedLinkedContentPaths,
       lastSelectedChatModel,
+      lastUsedChatMode,
     };
 
     const merged = {
@@ -562,6 +578,7 @@ export class ClaudianSettingsStorage {
       || 'enableBlocklist' in stored
       || 'blockedCommands' in stored
       || shouldPersistChatViewPlacementMigration(stored, chatViewPlacement)
+      || shouldPersistChatModeMigration(stored)
       || shouldPersistChatViewNormalization(
         stored,
         enableDualPane,

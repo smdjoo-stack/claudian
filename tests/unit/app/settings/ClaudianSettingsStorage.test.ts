@@ -19,6 +19,15 @@ function createAdapter(
   } as unknown as jest.Mocked<VaultFileAdapter>;
 }
 
+function createAdapterWithNoSettingsFile(): jest.Mocked<VaultFileAdapter> {
+  return {
+    exists: jest.fn().mockResolvedValue(false),
+    read: jest.fn().mockRejectedValue(new Error('no settings file to read')),
+    write: jest.fn().mockResolvedValue(undefined),
+    delete: jest.fn().mockResolvedValue(undefined),
+  } as unknown as jest.Mocked<VaultFileAdapter>;
+}
+
 describe('ClaudianSettingsStorage Linked content migration', () => {
   it('imports legacy organization and pinned paths before defaults and awaits canonical persistence', async () => {
     const adapter = createAdapter({
@@ -116,5 +125,47 @@ describe('ClaudianSettingsStorage Linked content migration', () => {
     const persisted = JSON.parse(adapter.write.mock.calls.at(-1)![1]);
     expect(persisted.pinnedLinkedContentPaths).toEqual(['Projects/Current']);
     expect(persisted).not.toHaveProperty('pinnedLinkedNotePaths');
+  });
+});
+
+describe('ClaudianSettingsStorage lastUsedChatMode migration', () => {
+  it('starts a fresh install with no settings file in general mode', async () => {
+    const adapter = createAdapterWithNoSettingsFile();
+    const storage = new ClaudianSettingsStorage(adapter);
+
+    const settings = await storage.load();
+
+    expect(settings.lastUsedChatMode).toBe('general');
+    expect(adapter.write).not.toHaveBeenCalled();
+  });
+
+  it('migrates an existing install predating chat modes to agent mode and persists it', async () => {
+    const adapter = createAdapter({});
+    const storage = new ClaudianSettingsStorage(adapter);
+
+    const settings = await storage.load();
+
+    expect(settings.lastUsedChatMode).toBe('agent');
+    expect(adapter.write).toHaveBeenCalledTimes(1);
+    const persisted = JSON.parse(adapter.write.mock.calls[0][1]);
+    expect(persisted.lastUsedChatMode).toBe('agent');
+  });
+
+  it('keeps an already-stored chat mode without overwriting it via migration', async () => {
+    const adapter = createAdapter({ lastUsedChatMode: 'vault' });
+    const storage = new ClaudianSettingsStorage(adapter);
+
+    const settings = await storage.load();
+
+    expect(settings.lastUsedChatMode).toBe('vault');
+  });
+
+  it('falls back a corrupted stored value to general mode, not agent mode', async () => {
+    const adapter = createAdapter({ lastUsedChatMode: 'nonsense' });
+    const storage = new ClaudianSettingsStorage(adapter);
+
+    const settings = await storage.load();
+
+    expect(settings.lastUsedChatMode).toBe('general');
   });
 });
