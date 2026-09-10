@@ -63,7 +63,7 @@
       "general": "Général",
       "vault": "Coffre",
       "agent": "Agent",
-      "generalDesc": "Conversation simple. Aucun outil, aucun accès au coffre.",
+      "generalDesc": "Conversation simple. L'agent n'utilise pas les outils du coffre.",
       "vaultDesc": "Lit et recherche dans le coffre. Ne modifie aucun fichier.",
       "agentDesc": "Accès complet. Lit, écrit et modifie le coffre.",
       "switched": "Passé en mode {mode}",

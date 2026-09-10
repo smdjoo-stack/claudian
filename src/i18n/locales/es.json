@@ -63,7 +63,7 @@
       "general": "General",
       "vault": "Bóveda",
       "agent": "Agente",
-      "generalDesc": "Conversación simple. Sin herramientas ni acceso a la bóveda.",
+      "generalDesc": "Conversación simple. El agente no usa las herramientas de la bóveda.",
       "vaultDesc": "Lee y busca en la bóveda. No modifica archivos.",
       "agentDesc": "Acceso completo. Lee, escribe y edita la bóveda.",
       "switched": "Cambiado al modo {mode}",

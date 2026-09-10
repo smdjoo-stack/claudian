@@ -63,7 +63,7 @@
       "general": "常规",
       "vault": "仓库",
       "agent": "智能体",
-      "generalDesc": "纯对话，不使用工具，不访问仓库。",
+      "generalDesc": "纯对话。智能体不使用仓库工具。",
       "vaultDesc": "读取并搜索仓库，不修改文件。",
       "agentDesc": "完全权限，可读取、写入和编辑仓库。",
       "switched": "已切换到{mode}模式",

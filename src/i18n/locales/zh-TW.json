@@ -63,7 +63,7 @@
       "general": "一般",
       "vault": "保管庫",
       "agent": "代理程式",
-      "generalDesc": "純對話，不使用工具，不存取保管庫。",
+      "generalDesc": "純對話。代理程式不使用保管庫工具。",
       "vaultDesc": "讀取並搜尋保管庫，不修改檔案。",
       "agentDesc": "完整權限，可讀取、寫入與編輯保管庫。",
       "switched": "已切換至{mode}模式",

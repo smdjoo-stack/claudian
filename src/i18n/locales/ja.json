@@ -63,7 +63,7 @@
       "general": "一般",
       "vault": "ボルト",
       "agent": "エージェント",
-      "generalDesc": "ツールなしの通常会話。Vault にはアクセスしません。",
+      "generalDesc": "通常の会話。エージェントは Vault のツールを使用しません。",
       "vaultDesc": "Vault を読み取り検索します。ファイルは変更しません。",
       "agentDesc": "全権限。Vault の読み取り・書き込み・編集を行います。",
       "switched": "{mode} モードに切り替えました",

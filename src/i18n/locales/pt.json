@@ -63,7 +63,7 @@
       "general": "Geral",
       "vault": "Cofre",
       "agent": "Agente",
-      "generalDesc": "Conversa simples. Sem ferramentas nem acesso ao cofre.",
+      "generalDesc": "Conversa simples. O agente não usa as ferramentas do cofre.",
       "vaultDesc": "Lê e pesquisa o cofre. Não modifica arquivos.",
       "agentDesc": "Acesso total. Lê, escreve e edita o cofre.",
       "switched": "Alternado para o modo {mode}",

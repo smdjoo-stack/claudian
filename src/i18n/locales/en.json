@@ -63,7 +63,7 @@
       "general": "General",
       "vault": "Vault",
       "agent": "Agent",
-      "generalDesc": "Plain conversation. No tools, no Vault access.",
+      "generalDesc": "Plain conversation. The agent does not use vault tools.",
       "vaultDesc": "Reads and searches the Vault. Cannot modify files.",
       "agentDesc": "Full access. Reads, writes, and edits the Vault.",
       "switched": "Switched to {mode} mode",
