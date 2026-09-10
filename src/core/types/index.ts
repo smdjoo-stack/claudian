@@ -24,6 +24,17 @@ export {
   type UsageInfo,
   VIEW_TYPE_CLAUDIAN,
 } from './chat';
+
+// Chat mode types
+export {
+  CHAT_MODES,
+  type ChatMode,
+  type ChatModePreference,
+  FALLBACK_CHAT_MODE,
+  isChatMode,
+  normalizeChatMode,
+  resolveInitialChatMode,
+} from './ChatMode';
 export { type ProviderId } from './provider';
 
 // Settings and command types
