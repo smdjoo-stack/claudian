@@ -1103,40 +1103,66 @@ git commit -m "feat: project chat mode into provider tool policy and system inst
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
-`tests/unit/features/chat/controllers/InputController.test.ts`에 아래 `describe`를 추가한다. 기존 파일의 헬퍼(목 deps 생성 함수)를 재사용하되, 이름이 다르면 파일 상단을 읽고 맞춘다. 기존 헬퍼가 없으면 이 블록이 쓰는 최소 목을 파일 내 지역 헬퍼로 만든다.
+`tests/unit/features/chat/controllers/InputController.test.ts`를 확장한다. **private 메서드를 뚫지 말 것** — 이 파일에는 이미 공개 API로 submission을 검사하는 확립된 패턴이 있고, 그걸 그대로 쓴다.
+
+기존 하네스: `createFixture(overrides)` (89행). `overrides`는 `InputControllerDeps`에 그대로 병합되므로 `getChatMode`를 주입할 수 있다. `fixture.coordinator.execute`는 jest 목이고, `ChatTurnSubmission`을 첫 인자로 받는다. 같은 파일 229·412·437·461행이 이미 이 방식으로 submission을 꺼내 단정하고 있다:
+
+```ts
+const submission = fixture.coordinator.execute.mock.calls[0][0] as ChatTurnSubmission;
+```
+
+그래서 헬퍼는 이렇게 만든다 (`describe` 안에 지역 함수로):
+
+```ts
+async function sendWithMode(chatMode: ChatMode | undefined): Promise<ChatTurnSubmission> {
+  const fixture = createFixture(
+    chatMode === undefined ? {} : { getChatMode: () => chatMode },
+  );
+  fixture.input.value = 'hello';
+  await fixture.controller.sendMessage();
+  return fixture.coordinator.execute.mock.calls[0][0] as ChatTurnSubmission;
+}
+```
+
+이 방식은 private 접근보다 낫다. `sendMessage()`라는 실제 공개 경로를 통과하므로 투사가 전송 시점에 실제로 적용되는지를 검증한다. 또한 `describe`에 기존 `InputController coordinator execution` 블록(302행)의 `beforeEach`와 같은 프로바이더 설정 목이 필요하다 — 그 블록 안에 테스트를 추가하거나, 같은 `beforeEach`를 새 `describe`에 복사한다.
 
 ```ts
 describe('InputController chat mode projection', () => {
-  it('sends General mode with no tools and an explicit prompt', () => {
-    const submission = buildSubmissionForMode('general');
+  it('sends General mode with no tools and an explicit prompt', async () => {
+    const submission = await sendWithMode('general');
     expect(submission.toolPolicy).toEqual({ kind: 'passive' });
     expect(submission.configuration.systemInstructions.kind).toBe('explicit');
   });
 
-  it('sends Vault mode read-only with the search directive', () => {
-    const submission = buildSubmissionForMode('vault');
+  it('sends Vault mode read-only with the search directive', async () => {
+    const submission = await sendWithMode('vault');
     expect(submission.toolPolicy).toEqual({ kind: 'read-only' });
     expect(submission.configuration.systemInstructions).toMatchObject({
       kind: 'provider-default',
     });
   });
 
-  it('sends Agent mode exactly as before', () => {
-    const submission = buildSubmissionForMode('agent');
+  it('sends Agent mode exactly as before', async () => {
+    const submission = await sendWithMode('agent');
     expect(submission.toolPolicy).toEqual({ kind: 'provider-default' });
     expect(submission.configuration.systemInstructions).toEqual({
       kind: 'provider-default',
     });
   });
 
-  it('defaults to General when the tab exposes no mode', () => {
-    const submission = buildSubmissionForMode(undefined);
+  it('defaults to General when the tab exposes no mode', async () => {
+    const submission = await sendWithMode(undefined);
     expect(submission.toolPolicy).toEqual({ kind: 'passive' });
+  });
+
+  it('records the mode on the user message so the divider can find it', async () => {
+    const fixture = createFixture({ getChatMode: () => 'vault' });
+    fixture.input.value = 'hello';
+    await fixture.controller.sendMessage();
+    expect(fixture.state.messages[0]).toMatchObject({ chatMode: 'vault', role: 'user' });
   });
 });
 ```
-
-`buildSubmissionForMode`는 같은 파일에 지역 헬퍼로 만든다. `createExecutionSubmission`은 private이므로 목 deps로 `InputController`를 만들고 `(controller as unknown as { createExecutionSubmission: (...args: unknown[]) => ChatTurnSubmission })`로 접근한다. 기존 테스트 파일이 이미 private 접근 패턴을 쓰고 있으면 그 방식을 따른다.
 
 - [ ] **Step 2: 실패 확인**
 
