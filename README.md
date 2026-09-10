@@ -98,6 +98,8 @@ Obsidian launched from the GUI does not inherit your shell's `PATH`, so a CLI in
 
 - **Default chat mode** (Settings → General): which mode a newly opened tab starts in — the last one you used, or a mode you pin.
 
+Upgrade behavior: a settings file written before chat modes existed is migrated to start in **Agent** mode, so an existing install does not silently lose vault access. A fresh install starts in **General**. A corrupted stored value falls back to General rather than to Agent — absence means "upgraded", corruption means untrusted input.
+
 ## Everything else
 
 Every other feature is upstream Claudian's: inline edit, slash commands and skills, `@mention` of vault files and folders, instruction mode, MCP servers, and tabs and session management.
