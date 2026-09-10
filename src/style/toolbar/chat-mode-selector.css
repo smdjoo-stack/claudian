@@ -1,0 +1,29 @@
+.claudian-chat-mode-selector {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--background-modifier-border);
+}
+
+.claudian-chat-mode-segment {
+  padding: 2px 8px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.claudian-chat-mode-segment:hover {
+  color: var(--text-normal);
+}
+
+.claudian-chat-mode-segment.active {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-weight: var(--font-medium);
+}
