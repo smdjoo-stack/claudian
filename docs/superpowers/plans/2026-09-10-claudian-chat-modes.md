@@ -14,8 +14,16 @@
 
 - Node 24.16.0 (`.node-version`). 패키지 매니저는 `npm` (`package-lock.json`이 정본. `bun.lock`이 함께 있지만 bun은 이 환경에 설치되어 있지 않다).
 - 프로바이더 디렉터리(`src/providers/**`)와 실행 백엔드(`src/core/execution/**`)는 **수정하지 않는다.** 수정이 필요해 보이면 설계가 틀린 것이므로 멈추고 보고한다.
-- 레이어 방향: `features` → `core`를 import한다. `core`가 `features`를 import하면 안 된다. 그래서 `ChatMode` 타입은 `src/core/types/chatMode.ts`에 두고, 도구 정책 투사는 `src/features/chat/state/`에 둔다.
+- 레이어 방향: `features` → `core`를 import한다. `core`가 `features`를 import하면 안 된다. 그래서 `ChatMode` 타입은 `src/core/types/ChatMode.ts`에 두고, 도구 정책 투사는 `src/features/chat/state/`에 둔다.
 - 모드 식별자 문자열은 정확히 `'general'`, `'vault'`, `'agent'`다. 표시 라벨은 반드시 i18n `t()`를 통한다. 하드코딩된 사용자 표시 문자열 금지.
+- **파일 이름 (`AGENTS.md:104` + `eslint.config.mjs`의 `local/file-naming` 규칙이 강제한다):** 모듈의 지배적 export 이름을 그대로 `PascalCase.ts`로 쓴다. 지배적 export가 없는 유틸 묶음만 `camelCase.ts`다. 규칙은 camelCase 파일명이 그 파일명의 PascalCase와 **똑같은 이름의 export 선언**을 가지면 `conceptMismatch` 에러를 낸다. 그래서:
+  - `src/core/types/ChatMode.ts` — `export type ChatMode`을 가지므로 PascalCase 필수
+  - `src/features/chat/state/ChatModeProjection.ts` — `export interface ChatModeProjection`을 가지므로 PascalCase 필수
+  - `src/features/chat/state/tabChatMode.ts` — `getTabChatMode`/`setTabChatMode`만 export하므로 camelCase 정상
+  - `src/core/prompt/generalChat.ts`, `vaultSearch.ts` — 파일명과 같은 이름의 export가 없으므로 camelCase 정상
+  - 테스트는 소스 이름을 그대로 미러링한다: `ChatMode.ts` → `ChatMode.test.ts`
+  **이 규칙을 `eslint-disable`로 침묵시키지 말 것.** 규칙이 울리면 파일 이름이 틀린 것이다.
+- import 경로: `AGENTS.md:106`이 "깊은 상대경로보다 `@/` 별칭을 선호한다"고 정한다. 2단계 이상 올라가는 경로(`../../..`)는 `@/`로 쓴다. 같은 디렉터리나 한 단계(`./x`, `../x`)는 상대경로를 유지한다. `@/`는 `tsconfig.json` paths와 `jest.config.js` moduleNameMapper에 배선되어 있고 src 파일 784개 중 298개가 이미 쓰고 있다.
 - 스타일은 Obsidian CSS 변수(`var(--text-muted)`, `var(--background-modifier-border)`, `var(--interactive-accent)` 등)만 쓴다. 색상 리터럴 금지.
 - 테스트 import 별칭: 소스는 `@/`, 테스트 헬퍼는 `@test/` (`jest.config.js`에 설정되어 있다).
 - 커밋 메시지는 Conventional Commits(`feat:`, `test:`, `refactor:`, `style:`, `chore:`).
@@ -38,19 +46,19 @@
 
 | 파일 | 책임 |
 |---|---|
-| `src/core/types/chatMode.ts` | `ChatMode` 타입, 상수, 타입 가드, 정규화, 초기값 해석. 의존성 없음 |
+| `src/core/types/ChatMode.ts` | `ChatMode` 타입, 상수, 타입 가드, 정규화, 초기값 해석. 의존성 없음 |
 | `src/core/prompt/generalChat.ts` | 일반 모드 시스템 프롬프트 조립 |
 | `src/core/prompt/vaultSearch.ts` | 볼트 모드 동적 섹션 문구 |
-| `src/features/chat/state/chatModeProjection.ts` | 모드 → `toolPolicy` + `systemInstructions` 투사 |
+| `src/features/chat/state/ChatModeProjection.ts` | 모드 → `toolPolicy` + `systemInstructions` 투사 |
 | `src/features/chat/state/tabChatMode.ts` | 탭 모드 읽기/쓰기 (`getTabChatMode` / `setTabChatMode`) |
 | `src/features/chat/ui/ChatModeSelector.ts` | 3지 세그먼트 알약 UI |
 | `src/style/toolbar/chat-mode-selector.css` | 세그먼트 스타일 |
-| `tests/unit/core/types/chatMode.test.ts` | 타입 가드·정규화·초기값 |
+| `tests/unit/core/types/ChatMode.test.ts` | 타입 가드·정규화·초기값 |
 | `src/style/features/chat-mode-divider.css` | 모드 전환 구분선 스타일 |
 | `tests/unit/core/prompt/generalChat.test.ts` | 일반 프롬프트 (볼트 섹션 부재 단정 포함) |
 | `tests/unit/core/prompt/vaultSearch.test.ts` | 볼트 동적 섹션 |
 | `tests/unit/features/chat/state/tabChatMode.test.ts` | 탭 모드 읽기/쓰기 |
-| `tests/unit/features/chat/state/chatModeProjection.test.ts` | 투사 |
+| `tests/unit/features/chat/state/ChatModeProjection.test.ts` | 투사 |
 | `tests/unit/features/chat/ui/ChatModeSelector.test.ts` | UI |
 | `tests/unit/features/chat/rendering/MessageRenderer.test.ts` | 구분선 (없으면 생성) |
 
@@ -153,8 +161,8 @@ git commit -m "docs: add chat mode design spec and implementation plan"
 의존성이 하나도 없는 순수 모듈부터 시작한다.
 
 **Files:**
-- Create: `src/core/types/chatMode.ts`
-- Create: `tests/unit/core/types/chatMode.test.ts`
+- Create: `src/core/types/ChatMode.ts`
+- Create: `tests/unit/core/types/ChatMode.test.ts`
 - Modify: `src/core/types/index.ts`
 
 **Interfaces:**
@@ -170,7 +178,7 @@ git commit -m "docs: add chat mode design spec and implementation plan"
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
-`tests/unit/core/types/chatMode.test.ts`:
+`tests/unit/core/types/ChatMode.test.ts`:
 
 ```ts
 import {
@@ -179,7 +187,7 @@ import {
   isChatMode,
   normalizeChatMode,
   resolveInitialChatMode,
-} from '@/core/types/chatMode';
+} from '@/core/types/ChatMode';
 
 describe('chatMode', () => {
   it('exposes exactly three modes in display order', () => {
@@ -229,14 +237,14 @@ describe('chatMode', () => {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-npm run test:unit -- tests/unit/core/types/chatMode.test.ts
+npm run test:unit -- tests/unit/core/types/ChatMode.test.ts
 ```
 
-기대: FAIL — `Cannot find module '@/core/types/chatMode'`.
+기대: FAIL — `Cannot find module '@/core/types/ChatMode'`.
 
 - [ ] **Step 3: 구현**
 
-`src/core/types/chatMode.ts`:
+`src/core/types/ChatMode.ts`:
 
 ```ts
 /**
@@ -289,13 +297,13 @@ export {
   isChatMode,
   normalizeChatMode,
   resolveInitialChatMode,
-} from './chatMode';
+} from './ChatMode';
 ```
 
 - [ ] **Step 5: 통과 확인**
 
 ```bash
-npm run test:unit -- tests/unit/core/types/chatMode.test.ts
+npm run test:unit -- tests/unit/core/types/ChatMode.test.ts
 npm run typecheck
 ```
 
@@ -304,7 +312,7 @@ npm run typecheck
 - [ ] **Step 6: 커밋**
 
 ```bash
-git add src/core/types/chatMode.ts src/core/types/index.ts tests/unit/core/types/chatMode.test.ts
+git add src/core/types/ChatMode.ts src/core/types/index.ts tests/unit/core/types/ChatMode.test.ts
 git commit -m "feat: add ChatMode type with normalization and initial-mode resolution"
 ```
 
@@ -612,7 +620,7 @@ npm run test:unit -- tests/unit/app/settings/defaultSettings.test.ts
 같은 파일 상단 import에 추가:
 
 ```ts
-import type { ChatMode, ChatModePreference } from './chatMode';
+import type { ChatMode, ChatModePreference } from './ChatMode';
 ```
 
 - [ ] **Step 4: 기본값 추가**
@@ -666,7 +674,7 @@ git commit -m "feat: add defaultChatMode and lastUsedChatMode settings"
 `tests/unit/features/chat/state/tabChatMode.test.ts`:
 
 ```ts
-import type { ChatMode } from '@/core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
 import { getTabChatMode, setTabChatMode } from '@/features/chat/state/tabChatMode';
 
 function makeTab(chatMode: ChatMode) {
@@ -729,7 +737,7 @@ npm run test:unit -- tests/unit/features/chat/state/tabChatMode.test.ts
 `src/features/chat/tabs/TabSession.ts`:
 
 ```ts
-import type { ChatMode } from '../../../core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
 ```
 
 `TabSessionState`에 (알파벳 순서를 지킨다 — 이 파일은 정렬되어 있다):
@@ -773,7 +781,7 @@ export interface TabSessionState {
 같은 파일 import에 추가:
 
 ```ts
-import { resolveInitialChatMode } from '../../../../core/types/chatMode';
+import { resolveInitialChatMode } from '@/core/types/ChatMode';
 ```
 
 그리고 반환 객체 리터럴의 `draftModel` 게터/세터 바로 아래에:
@@ -823,7 +831,7 @@ export type TabProviderContext = Pick<
 import 추가:
 
 ```ts
-import type { ChatMode } from '../../../core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
 ```
 
 - [ ] **Step 7: 헬퍼 모듈 구현**
@@ -831,8 +839,8 @@ import type { ChatMode } from '../../../core/types/chatMode';
 `src/features/chat/state/tabChatMode.ts`:
 
 ```ts
-import type { ChatMode } from '../../../core/types/chatMode';
-import { normalizeChatMode } from '../../../core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
+import { normalizeChatMode } from '@/core/types/ChatMode';
 import type { FeatureHost } from '../../FeatureHost';
 import type { AssembledTabRuntime, TabProviderContext } from '../tabs/types';
 
@@ -887,8 +895,8 @@ git commit -m "feat: track chat mode per tab, seeded from last used mode"
 모드를 프로바이더 계약으로 번역하는 유일한 지점. 여기에만 `switch`가 있어야 한다.
 
 **Files:**
-- Create: `src/features/chat/state/chatModeProjection.ts`
-- Create: `tests/unit/features/chat/state/chatModeProjection.test.ts`
+- Create: `src/features/chat/state/ChatModeProjection.ts`
+- Create: `tests/unit/features/chat/state/ChatModeProjection.test.ts`
 
 **Interfaces:**
 - Consumes: Task 2 (`ChatMode`), Task 3 (`buildGeneralChatSystemPrompt`), Task 4 (`buildVaultSearchDynamicSection`), `ProviderToolPolicy`·`ProviderSystemInstructions` (`@/core/execution`)
@@ -899,10 +907,10 @@ git commit -m "feat: track chat mode per tab, seeded from last used mode"
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
-`tests/unit/features/chat/state/chatModeProjection.test.ts`:
+`tests/unit/features/chat/state/ChatModeProjection.test.ts`:
 
 ```ts
-import { projectChatMode } from '@/features/chat/state/chatModeProjection';
+import { projectChatMode } from '@/features/chat/state/ChatModeProjection';
 
 describe('projectChatMode', () => {
   it('gives General mode no tools at all', () => {
@@ -968,14 +976,14 @@ describe('projectChatMode', () => {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-npm run test:unit -- tests/unit/features/chat/state/chatModeProjection.test.ts
+npm run test:unit -- tests/unit/features/chat/state/ChatModeProjection.test.ts
 ```
 
 기대: FAIL — 모듈 없음.
 
 - [ ] **Step 3: 구현**
 
-`src/features/chat/state/chatModeProjection.ts`:
+`src/features/chat/state/ChatModeProjection.ts`:
 
 ```ts
 import type {
@@ -984,7 +992,7 @@ import type {
 } from '../../../core/execution';
 import { buildGeneralChatSystemPrompt } from '../../../core/prompt/generalChat';
 import { buildVaultSearchDynamicSection } from '../../../core/prompt/vaultSearch';
-import type { ChatMode } from '../../../core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
 
 export interface ChatModeProjectionInput {
   /** Instruction-mode and other host-supplied prompt sections. */
@@ -1069,7 +1077,7 @@ npm run typecheck
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add src/features/chat/state/chatModeProjection.ts tests/unit/features/chat/state/chatModeProjection.test.ts
+git add src/features/chat/state/ChatModeProjection.ts tests/unit/features/chat/state/ChatModeProjection.test.ts
 git commit -m "feat: project chat mode into provider tool policy and system instructions"
 ```
 
@@ -1150,7 +1158,7 @@ npm run test:unit -- tests/unit/features/chat/controllers/InputController.test.t
 import 추가:
 
 ```ts
-import type { ChatMode } from './chatMode';
+import type { ChatMode } from './ChatMode';
 ```
 
 - [ ] **Step 4: deps에 게터 추가**
@@ -1165,9 +1173,9 @@ import type { ChatMode } from './chatMode';
 import 추가:
 
 ```ts
-import type { ChatMode } from '../../../core/types/chatMode';
-import { FALLBACK_CHAT_MODE } from '../../../core/types/chatMode';
-import { projectChatMode } from '../state/chatModeProjection';
+import type { ChatMode } from '@/core/types/ChatMode';
+import { FALLBACK_CHAT_MODE } from '@/core/types/ChatMode';
+import { projectChatMode } from '../state/ChatModeProjection';
 ```
 
 같은 파일에 private 헬퍼를 추가한다 (`createExecutionSubmission` 바로 위):
@@ -1572,7 +1580,7 @@ git commit -m "feat: add chat mode strings for all ten locales"
 ```ts
 import { createMockEl } from '@test/helpers/MockElement';
 
-import type { ChatMode } from '@/core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
 import { ChatModeSelector } from '@/features/chat/ui/ChatModeSelector';
 
 jest.mock('obsidian', () => ({
@@ -1657,8 +1665,8 @@ npm run test:unit -- tests/unit/features/chat/ui/ChatModeSelector.test.ts
 ```ts
 import { Notice } from 'obsidian';
 
-import type { ChatMode } from '../../../core/types/chatMode';
-import { CHAT_MODES } from '../../../core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
+import { CHAT_MODES } from '@/core/types/ChatMode';
 import { t } from '../../../i18n/i18n';
 
 export interface ChatModeSelectorCallbacks {
@@ -1860,7 +1868,7 @@ npm run test:unit -- tests/unit/features/chat/ui/InputToolbar.test.ts
 import 추가:
 
 ```ts
-import type { ChatMode } from '../../../core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
 import { ChatModeSelector } from './ChatModeSelector';
 ```
 
@@ -2045,7 +2053,7 @@ npm run test:unit -- tests/unit/features/chat/rendering/MessageRenderer.test.ts
 import 추가:
 
 ```ts
-import type { ChatMode } from '../../../core/types/chatMode';
+import type { ChatMode } from '@/core/types/ChatMode';
 import { t } from '../../../i18n/i18n';
 ```
 
@@ -2178,8 +2186,8 @@ git commit -m "feat: mark mode switches in the message flow"
 import 추가:
 
 ```ts
-import type { ChatModePreference } from '../../core/types/chatMode';
-import { CHAT_MODES } from '../../core/types/chatMode';
+import type { ChatModePreference } from '@/core/types/ChatMode';
+import { CHAT_MODES } from '@/core/types/ChatMode';
 ```
 
 (경로는 파일 위치에 맞춰 `tsc`가 통과하는 값으로 조정한다.)
