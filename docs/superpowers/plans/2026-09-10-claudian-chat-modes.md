@@ -1948,7 +1948,7 @@ import type { ChatModeSelector } from '../ui/ChatModeSelector';
 `src/features/chat/tabs/runtime/TabRuntimeUI.ts`의 `onPermissionModeChange` 블록 바로 아래(같은 객체 안)에 추가:
 
 ```ts
-    getChatMode: () => getTabChatMode(runtimeRef.requirePublished()),
+    getChatMode: () => getTabChatMode(shell),
     onChatModeChange: async (mode) => {
       const tab = runtimeRef.requirePublished();
       await setTabChatMode(tab, plugin, mode);
@@ -1956,6 +1956,16 @@ import type { ChatModeSelector } from '../ui/ChatModeSelector';
       onUserModified();
     },
 ```
+
+**`getChatMode`는 반드시 `shell`을 쓴다. `runtimeRef.requirePublished()`를 쓰면 탭을 열 때마다 크래시한다.** 이유:
+
+- `createPublishedTabRuntimeRef`(`TabRuntimeFactory.ts:139`)의 `requirePublished()`는 아직 발행되지 않았으면 `throw new Error('Tab runtime callback invoked before assembly completed')`를 던진다.
+- `assembleTabRuntime`(`TabRuntimeFactory.ts:216`)의 순서는 shell → services → **UI** → controllers → … → `runtimeRef.publish(runtime)`이다. 즉 발행은 **맨 마지막**이다.
+- `ChatModeSelector`의 생성자는 `render()`에서 곧바로 `updateDisplay()`를 호출하고, 그게 `callbacks.getChatMode()`를 부른다. 이 호출은 UI 조립 단계, 즉 발행 **전**에 일어난다.
+
+기존 코드가 이 규칙을 이미 지키고 있다: 동기 게터(`getUIConfig`, `getCapabilities`, `getSettings`)는 모두 `shell`을 쓰고, `requirePublished()`는 사용자 클릭 이후에만 실행되는 비동기 핸들러(`onModelChange` 등)에서만 쓴다. `onChatModeChange`는 비동기 핸들러이므로 `requirePublished()`가 맞다.
+
+`shell`로 넘기는 것이 타입상 성립하는 이유: `TabRuntimeShellBundle`이 `TabProviderContext`를 `extends`하고(`TabRuntimeConstruction.ts:71`), Task 6에서 `chatMode`를 `TabProviderContext`에 넣었기 때문이다.
 
 import 추가:
 
@@ -2238,84 +2248,72 @@ git commit -m "feat: add default chat mode setting"
 
 ---
 
-### Task 14: 인코더 계약 회귀 테스트
+### Task 14: 인코더 계약의 빈 칸 하나 메우기
 
-이 설계 전체가 "`passive`는 `tools: []`, `read-only`는 읽기 도구 + 거부 훅"이라는 업스트림 동작에 얹혀 있다. 리베이스로 그게 바뀌면 모드는 조용히 무력화된다. 그 계약을 테스트로 고정한다. **프로바이더 코드는 수정하지 않는다 — 읽기만 한다.**
+**축소됨.** 원래 계획은 `passive` → `tools: []`, `read-only` → 읽기 도구 + 거부 훅, `provider-default` → 제약 없음, 세 가지를 모두 테스트로 고정하려 했다. 실측 결과 앞의 두 개는 **업스트림에 이미 있고 이 계획이 쓰려던 것보다 강하다**:
+
+- `tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts:368` — `it('uses resumable ephemeral turns and honors passive non-persistent policy')`가 `expect.objectContaining({ tools: [] })`를 두 번 단정한다.
+- 같은 파일 `:965` — `it('enforces read-only policy through both tool exposure and the native hook')`가 `options.tools`를 `['Read','Grep','Glob','LS','WebSearch','WebFetch']` 리터럴과 대조하고, **거기에 더해 `PreToolUse` 훅을 직접 호출해 `Edit`이 거부되는지까지 확인한다.** 이 계획의 원안에는 훅 동작 검증이 없었다.
+
+이미 있는 것을 다시 쓰는 것은 리뷰 기준이 Important 결함으로 규정하는 "로직 블록의 verbatim 중복"이며, 업스트림 PR을 낼 경우 가장 먼저 지적받을 종류의 코드다. 그래서 중복분은 쓰지 않는다.
+
+남은 빈 칸은 하나다: **`provider-default`일 때 `tools`가 설정되지 않는지**를 단정하는 테스트가 저장소 어디에도 없다 (`options?.tools`에 대한 동등 단정은 파일 전체에서 `:982` 한 곳뿐이다). 이게 깨지면 에이전트 모드가 조용히 제한되어 기존 사용자에게 회귀가 된다.
 
 **Files:**
 - Modify: `tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts` (기존 하네스 재사용)
 
 **Interfaces:**
-- Consumes: Task 7 (`projectChatMode`가 내는 세 가지 `toolPolicy`)
+- Consumes: Task 7 (`projectChatMode`가 에이전트 모드에 대해 내는 `{ kind: 'provider-default' }`)
 - Produces: 없음 (회귀 방어)
 
-- [ ] **Step 1: 기존 테스트 파일의 하네스 파악**
+- [ ] **Step 1: 기존 하네스 파악**
 
 ```bash
-sed -n '1,140p' tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts
-grep -n "getLastOptions\|createProviderRecoveryTestHarness\|toolPolicy" tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts
+sed -n '360,425p' tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts
+sed -n '960,1000p' tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts
 ```
 
-이 파일은 `@anthropic-ai/claude-agent-sdk` 목의 `getLastOptions()`로 SDK에 실제로 넘어간 옵션을 볼 수 있다. 기존 테스트가 한 턴을 실행하는 방식(하네스 생성 → 세션 시작 → 요청 전송)을 그대로 따른다.
+`createRequest`, `createConfig`, `collectEvents`, `sdkMock.getLastOptions()`를 어떻게 조합해 한 턴을 돌리는지 확인한다. 새 하네스를 만들지 말고 이 조합을 그대로 쓴다.
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [ ] **Step 2: 테스트 작성**
 
-기존 파일 맨 아래에 `describe`를 추가한다. 한 턴을 실행하는 부분은 같은 파일의 기존 테스트에서 복사하고, `toolPolicy`만 바꾼다.
+`:965`의 read-only 테스트 바로 뒤에 추가한다. 그 테스트의 세션 생성·실행 부분을 그대로 본뜨고 `toolPolicy`만 바꾼다.
 
 ```ts
-describe('tool policy contract that chat modes depend on', () => {
-  it('sends no tools for the passive policy (General mode)', async () => {
-    await runOneTurnWithToolPolicy({ kind: 'passive' });
-    expect(sdkMock.getLastOptions()?.tools).toEqual([]);
-  });
+  it('leaves tools unconstrained under the provider default policy', async () => {
+    const services = createServices();
+    const session = new ClaudeExecutionBackend(createHost(), services)
+      .createSession(createConfig({ lifecycle: 'ephemeral' }));
 
-  it('sends only read-only tools for the read-only policy (Vault mode)', async () => {
-    await runOneTurnWithToolPolicy({ kind: 'read-only' });
+    await collectEvents(session.execute(createRequest({
+      toolPolicy: { kind: 'provider-default' },
+    })).events);
+
     const options = sdkMock.getLastOptions();
-    expect(options?.tools).toEqual(['Read', 'Grep', 'Glob', 'LS', 'WebSearch', 'WebFetch']);
-    expect(options?.hooks?.PreToolUse).toBeDefined();
+    expect(options?.tools).toBeUndefined();
+    expect(options?.hooks?.PreToolUse).toBeUndefined();
   });
-
-  it('leaves tools unconstrained for the provider default policy (Agent mode)', async () => {
-    await runOneTurnWithToolPolicy({ kind: 'provider-default' });
-    expect(sdkMock.getLastOptions()?.tools).toBeUndefined();
-  });
-});
 ```
 
-`runOneTurnWithToolPolicy`는 같은 파일에 지역 헬퍼로 만든다. 기존 테스트가 요청 객체를 만드는 함수를 이미 갖고 있으면 그것을 재사용하고 `toolPolicy`만 인자로 받게 한다.
+`createServices()`/`createHost()`/`createConfig()`의 실제 이름과 인자는 Step 1에서 읽은 것에 맞춘다. 인접한 read-only 테스트가 쓰는 형태를 따르는 것이 정답이다.
 
-읽기 전용 도구 목록의 기대값은 하드코딩하지 말고 상수를 가져와도 된다:
-
-```ts
-import { READ_ONLY_TOOLS } from '@/core/tools/toolNames';
-...
-expect(options?.tools).toEqual([...READ_ONLY_TOOLS]);
-```
-
-상수를 쓰면 목록 변경에는 통과하고 **정책 배선이 끊기는 경우만** 잡는다. 둘 다 잡고 싶으면 리터럴 목록으로 둔다. 리터럴을 권한다 — 업스트림이 목록을 줄이면 볼트 모드의 검색 능력이 조용히 사라지므로 알아야 한다.
-
-- [ ] **Step 3: 실패 확인**
-
-헬퍼를 만들기 전 상태에서 한 번 돌려 컴파일 실패나 단정 실패를 확인한다.
+- [ ] **Step 3: 통과 확인**
 
 ```bash
 npm run test:unit -- tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts
 ```
 
-- [ ] **Step 4: 헬퍼 완성 후 통과 확인**
+기대: 새 테스트를 포함해 전부 PASS. 이것은 기존 동작에 대한 특성화(characterization) 테스트이므로 처음부터 통과하는 것이 정상이다. **실패하면 멈추고 보고한다** — 설계의 전제가 깨졌다는 뜻이다.
 
-```bash
-npm run test:unit -- tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts
-```
+- [ ] **Step 4: 이빨 확인**
 
-기대: 세 테스트 PASS. **`read-only` 테스트가 실패하면 멈추고 보고한다** — 설계의 전제가 깨진 것이므로 계획을 다시 봐야 한다.
+`ClaudeExecutionRequestEncoder.ts`의 `resolveToolPolicy`에서 `provider-default` 분기가 `allowedTools: null` 대신 빈 배열을 내도록 일시적으로 바꿔 이 테스트가 실패하는지 확인한 뒤 원상복구한다. 확인 결과를 보고서에 적는다. 통과만 하는 테스트는 아무것도 지켜주지 않는다.
 
 - [ ] **Step 5: 커밋**
 
 ```bash
 git add tests/unit/providers/claude/execution/ClaudeExecutionBackend.test.ts
-git commit -m "test: pin the tool policy contract that chat modes rely on"
+git commit -m "test: pin that the provider default policy leaves tools unconstrained" -m "Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 ```
 
 ---
