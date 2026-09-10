@@ -1,3 +1,5 @@
+import type { ChatMode, ChatModePreference } from './ChatMode';
+
 export type HiddenProviderCommands = Record<string, string[]>;
 
 export interface ApprovalSelectionDecision {
@@ -130,6 +132,12 @@ export interface ClaudianSettings {
 
   // Security
   permissionMode: PermissionMode;
+
+  // Chat mode (host-owned; projected into provider tool policy at send time)
+  /** Mode a freshly opened tab starts in. 'last-used' reuses lastUsedChatMode. */
+  defaultChatMode: ChatModePreference;
+  /** Most recent mode picked in any tab. Seeds new tabs when defaultChatMode is 'last-used'. */
+  lastUsedChatMode: ChatMode;
 
   // Model & thinking (provider interprets values)
   model: string;

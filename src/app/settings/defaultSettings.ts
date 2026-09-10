@@ -9,6 +9,9 @@ export const DEFAULT_CLAUDIAN_SETTINGS: ClaudianSettings = {
 
   permissionMode: 'yolo',
 
+  defaultChatMode: 'last-used',
+  lastUsedChatMode: 'general',
+
   model: 'haiku',
   thinkingBudget: 'off',
   effortLevel: DEFAULT_REASONING_VALUE,
