@@ -45,4 +45,13 @@ describe('setTabChatMode', () => {
     await setTabChatMode(makeTab('vault') as never, plugin as never, 'vault');
     expect(plugin.mutateSettings).not.toHaveBeenCalled();
   });
+
+  it('persists when the tab already holds the mode but the global setting has diverged', async () => {
+    const plugin = makePlugin('general');
+    const tab = makeTab('vault');
+    await setTabChatMode(tab as never, plugin as never, 'vault');
+    expect(plugin.mutateSettings).toHaveBeenCalledTimes(1);
+    expect(plugin.settings.lastUsedChatMode).toBe('vault');
+    expect(tab.chatMode).toBe('vault');
+  });
 });

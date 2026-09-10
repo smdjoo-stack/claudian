@@ -1,7 +1,7 @@
 import type { ChatMode } from '@/core/types/ChatMode';
 import { normalizeChatMode } from '@/core/types/ChatMode';
+import type { FeatureHost } from '@/features/FeatureHost';
 
-import type { FeatureHost } from '../../FeatureHost';
 import type { AssembledTabRuntime, TabProviderContext } from '../tabs/types';
 
 /** Reads the tab's mode, tolerating a corrupted value. */
