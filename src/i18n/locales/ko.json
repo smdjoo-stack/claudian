@@ -57,6 +57,16 @@
       "errorNoActiveTab": "활성 탭이 없습니다",
       "commandNoMessages": "포크할 수 없습니다: 대화에 메시지가 없습니다",
       "commandNoAssistantUuid": "포크할 수 없습니다: 식별자가 있는 어시스턴트 응답이 없습니다"
+    },
+    "chatMode": {
+      "label": "모드",
+      "general": "일반",
+      "vault": "볼트",
+      "agent": "에이전트",
+      "generalDesc": "도구 없이 일반 대화. 볼트에 접근하지 않습니다.",
+      "vaultDesc": "볼트를 읽고 검색합니다. 파일을 수정하지 않습니다.",
+      "agentDesc": "전체 권한. 볼트를 읽고 쓰고 수정합니다.",
+      "switched": "{mode} 모드로 전환"
     }
   },
   "collab": {
@@ -423,6 +433,11 @@
     "setup": "설정",
     "models": "모델",
     "experimental": "실험적 기능",
+    "defaultChatMode": {
+      "name": "기본 채팅 모드",
+      "desc": "새로 연 채팅 탭이 시작할 모드입니다.",
+      "lastUsed": "마지막 사용"
+    },
     "userName": {
       "name": "Claudian이 당신을 어떻게 불러야 합니까?",
       "desc": "개인화된 인사에 사용할 이름 (비워두면 일반 인사)"

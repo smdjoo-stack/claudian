@@ -57,6 +57,16 @@
       "errorNoActiveTab": "Kein aktiver Tab",
       "commandNoMessages": "Verzweigung nicht möglich: keine Nachrichten in der Konversation",
       "commandNoAssistantUuid": "Verzweigung nicht möglich: keine Assistentenantwort mit Kennungen"
+    },
+    "chatMode": {
+      "label": "Modus",
+      "general": "Allgemein",
+      "vault": "Vault",
+      "agent": "Agent",
+      "generalDesc": "Reines Gespräch. Keine Werkzeuge, kein Vault-Zugriff.",
+      "vaultDesc": "Liest und durchsucht den Vault. Ändert keine Dateien.",
+      "agentDesc": "Volle Rechte. Liest, schreibt und bearbeitet den Vault.",
+      "switched": "In den Modus {mode} gewechselt"
     }
   },
   "collab": {
@@ -423,6 +433,11 @@
     "setup": "Einrichtung",
     "models": "Modelle",
     "experimental": "Experimentell",
+    "defaultChatMode": {
+      "name": "Standard-Chatmodus",
+      "desc": "Modus, in dem ein neu geöffneter Chat-Tab startet.",
+      "lastUsed": "Zuletzt verwendet"
+    },
     "userName": {
       "name": "Wie soll Claudian dich nennen?",
       "desc": "Dein Name für personalisierte Begrüßungen (leer lassen für allgemeine Begrüßungen)"

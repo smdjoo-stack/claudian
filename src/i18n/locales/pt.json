@@ -57,6 +57,16 @@
       "errorNoActiveTab": "Nenhuma aba ativa",
       "commandNoMessages": "Não é possível bifurcar: não há mensagens na conversa",
       "commandNoAssistantUuid": "Não é possível bifurcar: não há resposta do assistente com identificadores"
+    },
+    "chatMode": {
+      "label": "Modo",
+      "general": "Geral",
+      "vault": "Cofre",
+      "agent": "Agente",
+      "generalDesc": "Conversa simples. Sem ferramentas nem acesso ao cofre.",
+      "vaultDesc": "Lê e pesquisa o cofre. Não modifica arquivos.",
+      "agentDesc": "Acesso total. Lê, escreve e edita o cofre.",
+      "switched": "Alternado para o modo {mode}"
     }
   },
   "collab": {
@@ -423,6 +433,11 @@
     "setup": "Configuração",
     "models": "Modelos",
     "experimental": "Experimental",
+    "defaultChatMode": {
+      "name": "Modo de conversa padrão",
+      "desc": "Modo em que uma nova aba de conversa começa.",
+      "lastUsed": "Último usado"
+    },
     "userName": {
       "name": "Como o Claudian deve chamá-lo?",
       "desc": "Seu nome para saudações personalizadas (deixe vazio para saudações genéricas)"

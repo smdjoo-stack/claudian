@@ -57,6 +57,16 @@
       "errorNoActiveTab": "No hay ninguna pestaña activa",
       "commandNoMessages": "No se puede bifurcar: no hay mensajes en la conversación",
       "commandNoAssistantUuid": "No se puede bifurcar: no hay respuesta del asistente con identificadores"
+    },
+    "chatMode": {
+      "label": "Modo",
+      "general": "General",
+      "vault": "Bóveda",
+      "agent": "Agente",
+      "generalDesc": "Conversación simple. Sin herramientas ni acceso a la bóveda.",
+      "vaultDesc": "Lee y busca en la bóveda. No modifica archivos.",
+      "agentDesc": "Acceso completo. Lee, escribe y edita la bóveda.",
+      "switched": "Cambiado al modo {mode}"
     }
   },
   "collab": {
@@ -423,6 +433,11 @@
     "setup": "Configuración",
     "models": "Modelos",
     "experimental": "Experimental",
+    "defaultChatMode": {
+      "name": "Modo de chat predeterminado",
+      "desc": "Modo con el que inicia una pestaña de chat nueva.",
+      "lastUsed": "Último usado"
+    },
     "userName": {
       "name": "¿Cómo debería Claudian llamarte?",
       "desc": "Tu nombre para saludos personalizados (dejar vacío para saludos genéricos)"

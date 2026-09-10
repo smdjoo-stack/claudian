@@ -57,6 +57,16 @@
       "errorNoActiveTab": "No active tab",
       "commandNoMessages": "Cannot fork: no messages in conversation",
       "commandNoAssistantUuid": "Cannot fork: no assistant response with identifiers"
+    },
+    "chatMode": {
+      "label": "Mode",
+      "general": "General",
+      "vault": "Vault",
+      "agent": "Agent",
+      "generalDesc": "Plain conversation. No tools, no Vault access.",
+      "vaultDesc": "Reads and searches the Vault. Cannot modify files.",
+      "agentDesc": "Full access. Reads, writes, and edits the Vault.",
+      "switched": "Switched to {mode} mode"
     }
   },
   "collab": {
@@ -423,6 +433,11 @@
     "setup": "Setup",
     "models": "Models",
     "experimental": "Experimental",
+    "defaultChatMode": {
+      "name": "Default chat mode",
+      "desc": "Mode a newly opened chat tab starts in.",
+      "lastUsed": "Last used"
+    },
     "userName": {
       "name": "What should Claudian call you?",
       "desc": "Your name for personalized greetings (leave empty for generic greetings)"

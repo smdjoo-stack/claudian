@@ -57,6 +57,16 @@
       "errorNoActiveTab": "没有活动标签页",
       "commandNoMessages": "无法分叉：对话中没有消息",
       "commandNoAssistantUuid": "无法分叉：没有带标识符的助手回复"
+    },
+    "chatMode": {
+      "label": "模式",
+      "general": "常规",
+      "vault": "仓库",
+      "agent": "智能体",
+      "generalDesc": "纯对话，不使用工具，不访问仓库。",
+      "vaultDesc": "读取并搜索仓库，不修改文件。",
+      "agentDesc": "完全权限，可读取、写入和编辑仓库。",
+      "switched": "已切换到{mode}模式"
     }
   },
   "collab": {
@@ -423,6 +433,11 @@
     "setup": "设置",
     "models": "模型",
     "experimental": "实验性功能",
+    "defaultChatMode": {
+      "name": "默认聊天模式",
+      "desc": "新打开的聊天标签页的起始模式。",
+      "lastUsed": "上次使用"
+    },
     "userName": {
       "name": "Claudian 应该如何称呼你？",
       "desc": "用于个性化问候的用户名（留空使用通用问候）"
