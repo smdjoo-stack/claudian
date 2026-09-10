@@ -1,10 +1,10 @@
 {
-  "id": "realclaudian",
-  "name": "Claudian",
+  "id": "jclaudian",
+  "name": "Jclaudian",
   "version": "2.2.6",
   "minAppVersion": "1.13.0",
-  "description": "Embeds Claude Code, Codex, and other coding agents as AI collaborators in your vault. Your vault becomes their working directory, giving them capabilities for file reads and writes, search, bash commands, and multi-step workflows.",
-  "author": "Yishen Tu",
-  "authorUrl": "https://github.com/YishenTu",
+  "description": "Embeds Claude Code, Codex, and other coding agents as AI collaborators in your vault, with a three-way chat mode that controls how much of the vault the agent may touch: General (no tools), Vault (read-only search), Agent (full read/write). A fork of Claudian by Yishen Tu.",
+  "author": "joo (fork) — based on Claudian by Yishen Tu",
+  "authorUrl": "https://github.com/smdjoo-stack/claudian",
   "isDesktopOnly": true
 }

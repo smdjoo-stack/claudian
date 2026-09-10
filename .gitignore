@@ -97,3 +97,6 @@ CLAUDE.local.md
 
 .claude/
 .codex/
+
+# Agent working directories (SDD ledger, briefs, review packages)
+.superpowers/

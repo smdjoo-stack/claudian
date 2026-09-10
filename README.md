@@ -1,215 +1,135 @@
-# Claudian
+**English** | [한국어](README.ko.md)
 
-<p>
-  <a href="https://trendshift.io/repositories/21115?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-21115">
-    <img align="right" src="https://trendshift.io/api/badge/repositories/21115" alt="Claudian on Trendshift" width="180">
-  </a>
-  <img src="https://img.shields.io/github/stars/YishenTu/claudian" alt="GitHub stars" vspace="10">
-  <a href="https://community.obsidian.md/plugins/realclaudian">
-    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json&amp;query=%24%5B%22realclaudian%22%5D.downloads&amp;label=downloads&amp;logo=obsidian&amp;color=7C3AED" alt="Obsidian downloads" vspace="10">
-  </a>
-  <img src="https://img.shields.io/github/v/release/YishenTu/claudian" alt="GitHub release" vspace="10">
-  <img src="https://img.shields.io/github/license/YishenTu/claudian" alt="License" vspace="10">
-  <br clear="both">
-</p>
+# Jclaudian
 
-![Preview](assets/Preview.png)
+An Obsidian plugin that embeds AI coding agents (Claude Code, Codex, Grok, OpenCode, Pi) in your vault — with a **chat mode switch** that decides how much of the vault the agent may touch.
 
-An Obsidian plugin that embeds AI coding agents (Claude Code, Codex, Grok, Opencode, Pi, and more to come) in your vault. Your vault becomes the agent's working directory — file read/write, search, bash, and multi-step workflows all work out of the box. Visit [claudian.md](https://claudian.md/) to learn more.
+Jclaudian is a fork of [Claudian](https://github.com/YishenTu/claudian) by Yishen Tu. See [Provenance](#provenance) for exactly what it is based on and what was changed.
 
-## Features & Usage
+## Why this fork exists
 
-Open the chat sidebar from the ribbon icon or command palette. Select text and use the shortcut for inline editing. Everything works like your familiar coding agent, Claude Code, Codex, Grok, Opencode, and Pi — talk to the agent, and it reads, writes, edits, and searches files in your vault.
+In Claudian, your vault is the agent's working directory, so every message can read and write vault files. That is the point of the plugin — but it means there is no way to just *talk* to the model, or to ask a question about your notes without also handing over write access.
 
-**Inline Edit** — Select text or start at the cursor position + hotkey to edit directly in notes with word-level diff preview.
+Jclaudian adds a three-way mode selector to the composer toolbar:
 
-**Slash Commands & Skills** — Type `/` or `$` for reusable prompt templates or Skills from user- and vault-level scopes.
+| Mode | Tools available to the agent | Use it for |
+|---|---|---|
+| **General** | none | Plain conversation. No vault access at all. |
+| **Vault** | `Read` `Grep` `Glob` `LS` `WebSearch` `WebFetch` | Asking questions about your notes. Reads and cites; cannot modify. |
+| **Agent** | everything | The original Claudian behavior: read, write, edit, bash. |
 
-**`@mention`** — Type `@` to reference vault files, folders, and Collab member changes. Type `#` to reference Collab tickets.
+The mode is per-tab, so one tab can hold a plain conversation while another investigates your vault. A new tab starts in whichever mode you used last, or in a mode you pin in settings.
 
+Switching mode mid-conversation is allowed and keeps the conversation context. The message flow marks the switch point.
 
-**Instruction Mode (`/instruction`)** — Refined custom instructions added from the chat input.
+### How the modes are enforced
 
-**MCP Servers** — Connect external tools through each coding agent's native CLI-managed MCP configuration.
+Modes are not a prompt trick. The plugin projects the mode onto the provider-neutral tool policy that Claudian already had, so the enforcement happens where tools are granted:
 
-**Tabs & Session Management** — Use multiple tabs in single-panel mode or a persistent session manager beside the chat in dual-pane mode.
+- **General** → `passive` policy
+- **Vault** → `read-only` policy, plus a `PreToolUse` hook that denies anything outside the read-only list
+- **Agent** → `provider-default` policy (unchanged from upstream)
 
-**Collab Mode** (Experimental) — Collaborate on shared projects with other Claudian users. [Learn more](https://claudian.md/docs/collab-mode/).
+**Enforcement strength differs by provider, and you should know this before relying on General mode:**
+
+| Provider | General mode is enforced by |
+|---|---|
+| Claude Code | Tool removal — the SDK receives `tools: []`. Hard. |
+| Pi | Tool removal — `noTools: true`. Hard. |
+| OpenCode | Passive agent profile, and the filesystem delegate is withheld. Structural. |
+| Codex | A prompt instruction not to invoke tools, plus a read-only sandbox. Tools stay registered, so a model that ignores the instruction can still read files; writes fail at the sandbox. |
+| Grok | A prompt instruction not to invoke tools. Writes hit a permission gate that is cancelled; reads the CLI auto-approves are not intercepted. |
+
+So on Claude, Pi and OpenCode, General mode is a real denial. On Codex and Grok it is a strong request plus a sandbox. This is a property of those CLIs, not of this plugin — the plugin does not modify provider code.
+
+One thing General mode deliberately does **not** block: context you attach yourself. Files added with `@`, the current editor selection, and images still reach the model, and the General-mode system prompt says so. "No tools" means the agent cannot go looking through your vault on its own — not that it is blind to what you handed it.
 
 ## Requirements
 
-- At least one of the following harnesses:
-  - [Claude Code CLI](https://code.claude.com/docs/en/overview)
-  - [Codex CLI](https://github.com/openai/codex)
-  - [Grok Build](https://github.com/xai-org/grok-build)
-  - [OpenCode](https://github.com/anomalyco/opencode)
-  - [Pi](https://github.com/earendil-works/pi)
-- A compatible subscription or API provider, such as [OpenRouter](https://openrouter.ai/docs/guides/guides/claude-code-integration), [Kimi](https://platform.kimi.ai/docs/guide/claude-code-kimi), [GLM](https://docs.z.ai/devpack/tool/claude), or [DeepSeek](https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code) etc.
-- Obsidian v1.13.0+
-- Desktop only (macOS, Linux, Windows)
-- Collab Mode requires [Git](https://git-scm.com/install/)
+Same as upstream:
 
-## Installation
+- Obsidian 1.13.0 or newer, desktop only
+- At least one harness CLI: [Claude Code](https://code.claude.com/docs/en/overview), [Codex](https://github.com/openai/codex), [Grok](https://github.com/xai-org/grok-build), [OpenCode](https://github.com/anomalyco/opencode), or [Pi](https://github.com/earendil-works/pi)
+- A subscription or API provider for whichever CLI you use
 
-### From Obsidian Community Plugins (recommended)
+## Install
 
-1. Open Obsidian → Settings → Community plugins → Browse
-2. Search for "Claudian" and click Install
-3. Enable the plugin
-
-Or install directly from the [community plugin page](https://community.obsidian.md/plugins/realclaudian).
-
-### Plugin size and Obsidian Sync
-
-Despite considerable effort to reduce the bundle size, keeping it below 5 MB is no longer practical with the latest Claude Agent SDK. The Obsidian community plugin page may therefore display a large-plugin warning, and Obsidian's official Sync service cannot sync the main plugin file because it supports only files smaller than 5 MB.
-
-If you use Obsidian Sync across multiple desktop devices, install and update Claudian separately on each device instead of relying on Sync to copy the plugin files.
-
-### From source (development)
-
-1. Clone this repository into your vault's plugins folder:
-   ```bash
-   cd /path/to/vault/.obsidian/plugins
-   git clone https://github.com/YishenTu/claudian.git
-   cd claudian
-   ```
-
-2. Install dependencies and build:
-   ```bash
-   npm install
-   npm run build
-   ```
-
-3. Enable the plugin in Obsidian:
-   - Settings → Community plugins → Enable "Claudian"
-
-### Development
+There is no community-plugin listing for this fork; build it from source.
 
 ```bash
-# Watch mode
-npm run dev
-
-# Production build
+git clone https://github.com/smdjoo-stack/claudian.git jclaudian
+cd jclaudian
+npm install
 npm run build
 ```
 
-## Privacy & Data Use
-
-- **Sent to API**: Your input, attached files, images, and tool call outputs. Depending on the selected provider, data is sent to Anthropic (Claude), OpenAI (Codex), xAI (Grok), or the providers configured in OpenCode or Pi. The destination can be configured through provider settings and environment variables.
-- **Collab LAN traffic**: When you explicitly Host or synchronize a Collab Project, Project Git data and authenticated coordination metadata travel directly between invited teammates' devices on the local network. Collab Mode itself does not send Project data to a Claudian cloud service or any third party.
-- **No telemetry or unsolicited background activity**: Claudian does not run telemetry beacons. UI polling timers read local Obsidian/editor selection state only. Network activity is limited to explicit provider runtime work, configured MCP endpoints, provider SDK/CLI calls needed to answer your requests, and explicitly started Collab LAN work.
-
-## Troubleshooting
-
-The following sections use Claude Code as an example.
-
-### Provider CLI not found
-
-If Claudian cannot auto-detect a provider CLI, verify that the CLI is installed and available to GUI applications through PATH. Typical errors include `spawn claude ENOENT` and `Claude CLI not found`. This issue is common with Node version managers (nvm, fnm, volta).
-
-Leave the CLI path setting empty first so Claudian can auto-detect the CLI. If auto-detection fails, find the executable path and set it in Settings → Advanced → Claude CLI path.
-
-| Platform | Command | Example Path |
-|----------|---------|--------------|
-| macOS/Linux | `which claude` | `/Users/you/.volta/bin/claude` |
-| Windows (native) | `where.exe claude` | `C:\Users\you\AppData\Local\Claude\claude.exe` |
-| Windows (npm) | `npm root -g` | `{root}\@anthropic-ai\claude-code\cli-wrapper.cjs` |
-
-> **Note**: On Windows, avoid `.cmd` and `.ps1` wrappers. Use `claude.exe` for native installs, or `cli-wrapper.cjs` for package-manager installs. `cli.js` is only a legacy fallback for older Claude Code npm packages.
-
-**Alternative**: Add your Node.js bin directory to PATH in Settings → Environment → Custom variables.
-
-### npm CLI and Node.js not in the same directory
-
-When using an npm-installed provider CLI, make sure its executable and Node.js are available from the same environment. Check their paths:
+Then copy the three build outputs into your vault:
 
 ```bash
-dirname $(which claude)
-dirname $(which node)
+VAULT=/path/to/your/vault
+mkdir -p "$VAULT/.obsidian/plugins/jclaudian"
+cp main.js manifest.json styles.css "$VAULT/.obsidian/plugins/jclaudian/"
 ```
 
-If the paths differ, GUI apps like Obsidian may not find Node.js.
+The folder name must be `jclaudian` — Obsidian matches it against the `id` in `manifest.json`. Enable the plugin in Settings → Community plugins.
 
-Either:
-
-1. Install the native binary (recommended).
-2. Add the Node.js path in Settings → Environment: `PATH=/path/to/node/bin`.
-
-### More help
-
-For provider-specific installation and configuration guidance, refer to the provider documentation linked in the [Requirements](#requirements) section. If you have a feature request or run into a bug, please [submit a GitHub issue](https://github.com/YishenTu/claudian/issues).
-
-## Architecture
+For development, put your vault path in `.env.local` and the watch build will copy on every change:
 
 ```
-src/
-├── main.ts                      # Plugin entry point
-├── app/                         # Application services, storage, and lazy Collab infrastructure
-├── core/                        # Provider-neutral runtime, registry, and type contracts
-│   ├── runtime/                 # ChatRuntime interface and approval types
-│   ├── providers/               # Provider registry and workspace services
-│   ├── auxiliary/               # Shared provider auxiliary services
-│   ├── bootstrap/               # Plugin bootstrap wiring
-│   ├── security/                # Approval utilities
-│   └── ...                      # commands, prompt, storage, tools, types
-├── providers/
-│   ├── claude/                  # Claude SDK adaptor, prompt encoding, storage, MCP, plugins
-│   ├── codex/                   # Codex app-server adaptor, JSON-RPC transport, JSONL history
-│   ├── grok/                    # Grok Build ACP adaptor, native history, models, and tools
-│   ├── opencode/                # Opencode adaptor
-│   ├── pi/                      # Pi RPC adaptor, model discovery, JSONL history
-│   └── acp/                     # Agent Client Protocol shared transport
-├── features/
-│   ├── chat/                    # Sidebar chat: tabs, controllers, renderers
-│   ├── collab/                  # Collab sidebar, review, conflict, and access UI
-│   ├── inline-edit/             # Inline edit modal and provider-backed edit services
-│   └── settings/                # Settings shell with provider tabs
-├── shared/                      # Reusable UI components and modals
-├── i18n/                        # Internationalization (10 locales)
-├── types/                       # Shared ambient types
-├── utils/                       # Cross-cutting utilities
-└── style/                       # Modular CSS
+OBSIDIAN_VAULT=/path/to/your/vault
 ```
 
-## Contributing
+```bash
+npm run dev
+```
 
-Issues and focused pull requests are welcome. Issues are the preferred starting point: describe the problem, reproduction steps, and environment clearly so it can be investigated.
+### If the CLI is not detected
 
-Before opening a pull request, please read the [contribution guide](CONTRIBUTING.md). Pull requests must explain the problem, the proposed solution, why the approach is appropriate, and how the change was validated. Pull requests that add a new provider are not accepted; the guide explains this maintenance and product-quality boundary in detail.
+Obsidian launched from the GUI does not inherit your shell's `PATH`, so a CLI installed under `~/.local/bin` or a version manager may not be found. Set the path explicitly in Settings → Jclaudian → Claude CLI path. On macOS and Linux, paste the output of `which claude`.
 
-## Star History
+## Settings this fork adds
 
-<a href="https://www.star-history.com/?repos=YishenTu%2Fclaudian&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=YishenTu/claudian&type=date&theme=dark&legend=top-left&sealed_token=UAS9n3qO4GyhCCkOr9kcAl7msVtDEz-DoQTkpFuPrAELxMEK9PQWj9zG566afbx0CkF5OoIbLRkxiDIoMRCK5Q-HXbLUiimg1lT8wKDdcc_eP48_EodHFrR6UtY8jS7Mzik4lLd_sY8oVj2I42lISFB1tSlr4gnXwOCNwtTn6iQakbru7yKPIO3uVYpP" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=YishenTu/claudian&type=date&legend=top-left&sealed_token=UAS9n3qO4GyhCCkOr9kcAl7msVtDEz-DoQTkpFuPrAELxMEK9PQWj9zG566afbx0CkF5OoIbLRkxiDIoMRCK5Q-HXbLUiimg1lT8wKDdcc_eP48_EodHFrR6UtY8jS7Mzik4lLd_sY8oVj2I42lISFB1tSlr4gnXwOCNwtTn6iQakbru7yKPIO3uVYpP" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=YishenTu/claudian&type=date&legend=top-left&sealed_token=UAS9n3qO4GyhCCkOr9kcAl7msVtDEz-DoQTkpFuPrAELxMEK9PQWj9zG566afbx0CkF5OoIbLRkxiDIoMRCK5Q-HXbLUiimg1lT8wKDdcc_eP48_EodHFrR6UtY8jS7Mzik4lLd_sY8oVj2I42lISFB1tSlr4gnXwOCNwtTn6iQakbru7yKPIO3uVYpP" />
- </picture>
-</a>
+- **Default chat mode** (Settings → General): which mode a newly opened tab starts in — the last one you used, or a mode you pin.
 
-## Sponsorship
+## Everything else
 
-### Kimi (Moonshot AI)
+Every other feature is upstream Claudian's and is documented there: inline edit, slash commands and skills, `@mention` of vault files and folders, instruction mode, MCP servers, tabs and session management, and the experimental Collab mode. See the [upstream README](https://github.com/YishenTu/claudian#readme) and [claudian.md](https://claudian.md/).
 
-<img src="https://gcdn.moonshot.cn/growth-cdn/sponsor/kimi-en.png" alt="Kimi (Moonshot AI)" width="90%">
+Known limitation of this fork: the mode-switch divider in the message flow is live-session only. Claudian does not store message bodies — it rebuilds them from the provider's own transcript — so reopening an old conversation shows no dividers. The modes themselves work normally.
 
-Thanks to Kimi (Moonshot AI), our Open Source Friend, for supporting Claudian! With 2.8T parameters, native vision, and a
-1-million-token context window, Kimi K3 delivers frontier performance across long-horizon coding, knowledge work, and
-reasoning.
+## Provenance
 
-New users receive bonus API credits equal to 10% of their first successful top-up. Use the discount link for the
-[CN](https://platform.kimi.com?track_id=track-1f391886e67141d4866ff9d261767ee7&aff=claudian) or
-[Global](https://platform.kimi.ai?track_id=track-9800ef0cb7f444b1b33371617443c186&aff=claudian) platform. This offer
-ends September 30, 2026. Claudian receives no affiliate commission from these links.
+| | |
+|---|---|
+| Upstream project | [YishenTu/claudian](https://github.com/YishenTu/claudian) |
+| Upstream author | Yishen Tu |
+| Forked at | commit `6148cb2` — *"perf: defer collapsed stored tool output until expansion (#1304)"*, 2026-09-10 |
+| Upstream version at fork | 2.2.6 |
+| License | MIT (unchanged; see [LICENSE](LICENSE)) |
 
-### Ke Holdings Inc. (BEIKE)
+### What this fork changed
 
-<img src="assets/sponsors/MOMA.png" alt="MOMA" width="90%">
+Added, all inside `src/features/chat/**`, `src/core/types/`, `src/core/prompt/` and `src/i18n/`:
 
-Claudian is proudly sponsored by Ke Holdings Inc. (BEIKE) and the MOMA team. Their support helps Claudian continue to improve through ongoing development and maintenance.
+- `ChatMode` type with three modes, plus normalization that degrades to General on a corrupted value
+- `ChatModeProjection` — the single place that translates a mode into a tool policy and system-prompt shape
+- A General-mode system prompt that omits the vault sections of the standard prompt while reusing its shared sections
+- A Vault-mode prompt section instructing the agent to search with `Grep`/`Glob` and cite the notes it used
+- Per-tab mode state, seeded from a global "last used" setting
+- A segmented mode selector in the composer toolbar (native buttons, `aria-pressed`, keyboard and screen-reader accessible)
+- A divider in the message flow where the mode changed
+- The "Default chat mode" setting
+- Strings for all ten locales the plugin supports
 
-> Want to support Claudian or appear here? Contact me: [tysk01213@gmail.com](mailto:tysk01213@gmail.com).
+Deliberately **not** changed:
+
+- Nothing under `src/providers/**` or `src/core/execution/**`. The tool policies this feature relies on (`passive`, `read-only`, `provider-default`) already existed and every provider backend already implemented them, so no provider code needed to change. Agent mode therefore produces byte-for-byte the same request Claudian always did.
+- Internal identifiers: CSS classes, view types and the `.claudian` storage folder keep their original names. Only the plugin's public identity (`id`, `name`) was renamed, so your existing session data is still found.
+
+### Design documents
+
+The design spec and implementation plan for the chat-mode feature are in `docs/superpowers/`. They are written in Korean and describe this fork's development process, not the plugin's behavior — read the sections above instead if you just want to use it.
 
 ## License
 
-Licensed under the [MIT License](LICENSE).
+MIT, inherited from upstream. The original copyright notice is retained in [LICENSE](LICENSE). If you redistribute this fork, keep it.
