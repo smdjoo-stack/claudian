@@ -819,7 +819,7 @@ import { resolveInitialChatMode } from '@/core/types/ChatMode';
   chatMode: ChatMode;
 ```
 
-같은 파일의 `TabProviderContext`와 `TabProviderCatalogContext`의 `Pick` 목록에 `'chatMode'`를 추가:
+같은 파일의 `TabProviderContext`의 `Pick` 목록에만 `'chatMode'`를 추가한다:
 
 ```ts
 export type TabProviderContext = Pick<
@@ -827,6 +827,10 @@ export type TabProviderContext = Pick<
   'conversationId' | 'providerId' | 'lifecycleState' | 'draftModel' | 'chatMode'
 >;
 ```
+
+**`TabProviderCatalogContext`에는 추가하지 않는다.** 그건 별도의 `Pick`이고 소비자가 없다. 추가하면 `TabRuntimeShell.ts`의 `Object.freeze` 리터럴에 아무도 읽지 않는 게터가 하나 늘어난다.
+
+`TabProviderContext`에 추가하는 것은 선택이 아니라 필수다: `TabRuntimeConstruction.ts:71`의 `TabRuntimeShellBundle`이 `TabProviderContext`를 `extends`하고, Step 5의 `composeTabRuntime`이 `shell.chatMode`를 읽기 때문이다. 여기에 넣지 않으면 Step 5가 타입 오류로 막힌다.
 
 import 추가:
 
@@ -841,7 +845,7 @@ import type { ChatMode } from '@/core/types/ChatMode';
 ```ts
 import type { ChatMode } from '@/core/types/ChatMode';
 import { normalizeChatMode } from '@/core/types/ChatMode';
-import type { FeatureHost } from '../../FeatureHost';
+import type { FeatureHost } from '@/features/FeatureHost';
 import type { AssembledTabRuntime, TabProviderContext } from '../tabs/types';
 
 /** Reads the tab's mode, tolerating a corrupted value. */
@@ -989,9 +993,9 @@ npm run test:unit -- tests/unit/features/chat/state/ChatModeProjection.test.ts
 import type {
   ProviderSystemInstructions,
   ProviderToolPolicy,
-} from '../../../core/execution';
-import { buildGeneralChatSystemPrompt } from '../../../core/prompt/generalChat';
-import { buildVaultSearchDynamicSection } from '../../../core/prompt/vaultSearch';
+} from '@/core/execution';
+import { buildGeneralChatSystemPrompt } from '@/core/prompt/generalChat';
+import { buildVaultSearchDynamicSection } from '@/core/prompt/vaultSearch';
 import type { ChatMode } from '@/core/types/ChatMode';
 
 export interface ChatModeProjectionInput {
@@ -1256,7 +1260,7 @@ import { projectChatMode } from '../state/ChatModeProjection';
 import 추가:
 
 ```ts
-import { getTabChatMode } from '../../state/tabChatMode';
+import { getTabChatMode } from '@/features/chat/state/tabChatMode';
 ```
 
 - [ ] **Step 8: 통과 확인**
@@ -1667,7 +1671,7 @@ import { Notice } from 'obsidian';
 
 import type { ChatMode } from '@/core/types/ChatMode';
 import { CHAT_MODES } from '@/core/types/ChatMode';
-import { t } from '../../../i18n/i18n';
+import { t } from '@/i18n/i18n';
 
 export interface ChatModeSelectorCallbacks {
   getChatMode: () => ChatMode;
@@ -1930,7 +1934,7 @@ import type { ChatModeSelector } from '../ui/ChatModeSelector';
 import 추가:
 
 ```ts
-import { getTabChatMode, setTabChatMode } from '../../state/tabChatMode';
+import { getTabChatMode, setTabChatMode } from '@/features/chat/state/tabChatMode';
 ```
 
 - [ ] **Step 7: UI 컴포넌트 번들에 추가**
@@ -2054,7 +2058,7 @@ import 추가:
 
 ```ts
 import type { ChatMode } from '@/core/types/ChatMode';
-import { t } from '../../../i18n/i18n';
+import { t } from '@/i18n/i18n';
 ```
 
 (`t`가 이미 import되어 있으면 중복 추가하지 않는다.)
