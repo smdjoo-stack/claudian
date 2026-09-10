@@ -259,7 +259,7 @@ instruction 모드가 이미 쓰는 경로다 (`InputController.ts:994`).
 
 ## 10. 작업 순서와 배포
 
-1. 업스트림 포크 → `/Users/smdjoo/Documents/03.Project/Jcaludian/claudian`에 클론
+1. 업스트림 포크 → `<repo>`에 클론
 2. `npm install` → `npm run build`로 **손대기 전 기준선 빌드 확인**
 3. 5.1의 순수 로직(`chatMode.ts`, 프롬프트 2개)부터 테스트와 함께 작성
 4. `InputController` 투사 지점 교체 + 테스트

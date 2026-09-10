@@ -93,7 +93,7 @@
 손대기 전에 빌드와 테스트가 원래 통과하는지 확인한다. 나중에 "내가 깼나 원래 깨졌나"를 구분하기 위한 기준선이다.
 
 **Files:**
-- Create: `/Users/smdjoo/Documents/03.Project/Jcaludian/claudian/` (클론)
+- Create: `<repo>/` (클론)
 
 **Interfaces:**
 - Consumes: 없음
@@ -110,7 +110,7 @@ gh repo fork YishenTu/claudian --clone=false
 - [ ] **Step 2: 클론 + 업스트림 원격 추가**
 
 ```bash
-cd /Users/smdjoo/Documents/03.Project/Jcaludian
+cd <workspace>
 gh repo clone smdjoo-stack/claudian
 cd claudian
 git remote add upstream https://github.com/YishenTu/claudian.git
@@ -122,7 +122,7 @@ git remote -v
 - [ ] **Step 3: 의존성 설치**
 
 ```bash
-cd /Users/smdjoo/Documents/03.Project/Jcaludian/claudian
+cd <repo>
 node -v
 npm install
 ```
@@ -148,8 +148,8 @@ git log --oneline -1
 
 ```bash
 mkdir -p docs/superpowers/specs docs/superpowers/plans
-cp /Users/smdjoo/Documents/03.Project/Jcaludian/docs/superpowers/specs/2026-09-10-claudian-chat-modes-design.md docs/superpowers/specs/
-cp /Users/smdjoo/Documents/03.Project/Jcaludian/docs/superpowers/plans/2026-09-10-claudian-chat-modes.md docs/superpowers/plans/
+cp <workspace>/docs/superpowers/specs/2026-09-10-claudian-chat-modes-design.md docs/superpowers/specs/
+cp <workspace>/docs/superpowers/plans/2026-09-10-claudian-chat-modes.md docs/superpowers/plans/
 git add docs/superpowers
 git commit -m "docs: add chat mode design spec and implementation plan"
 ```
@@ -2348,12 +2348,10 @@ ls -la main.js manifest.json styles.css
 사용자에게 어느 볼트에 설치할지 확인한다. 후보(현재 Claudian이 설치된 볼트는 없다):
 
 ```
-/Users/smdjoo/Documents/01.Obsidian
-/Users/smdjoo/Documents/01.Obsidian/JOO-LLM-WIKI_V2
-/Users/smdjoo/Documents/01.Obsidian/joo_wiki_V3
-/Users/smdjoo/Documents/01.Obsidian/AI_for_pastor
-/Users/smdjoo/Desktop/BC_LLM_WiKI v3_claude
+<사용자의 Obsidian 볼트 경로>
 ```
+
+검증용으로는 실사용 볼트가 아니라 새 샘플 볼트를 만든다. 수동 시나리오에 에이전트가 실제로 파일을 쓰는 항목이 있기 때문이다.
 
 - [ ] **Step 4: 설치**
 
