@@ -156,6 +156,8 @@ function createMockCallbacks(overrides: Record<string, any> = {}) {
     onEffortLevelChange: jest.fn().mockResolvedValue(undefined),
     onServiceTierChange: jest.fn().mockResolvedValue(undefined),
     onPermissionModeChange: jest.fn().mockResolvedValue(undefined),
+    getChatMode: jest.fn().mockReturnValue('general'),
+    onChatModeChange: jest.fn().mockResolvedValue(undefined),
     getSettings: jest.fn().mockReturnValue({
       model: 'sonnet',
       thinkingBudget: 'low',
@@ -1076,5 +1078,20 @@ describe('createInputToolbar', () => {
     expect(permissionIndex).toBeGreaterThanOrEqual(0);
     expect(modeIndex).toBeGreaterThan(permissionIndex);
     expect(modeIndex).toBe(parentEl.children.length - 1);
+  });
+
+  it('creates the chat mode selector', () => {
+    const parentEl = createMockEl();
+    const callbacks = createMockCallbacks();
+    const toolbar = createInputToolbar(parentEl, callbacks);
+    expect(toolbar.chatModeSelector).toBeDefined();
+  });
+
+  it('mounts the chat mode selector into the toolbar', () => {
+    const parentEl = createMockEl();
+    const callbacks = createMockCallbacks();
+    createInputToolbar(parentEl, callbacks);
+    const classes = parentEl.children.map((child: any) => child.className);
+    expect(classes).toContain('claudian-chat-mode-selector');
   });
 });

@@ -1,5 +1,7 @@
 import { Notice, setIcon } from 'obsidian';
 
+import type { ChatMode } from '@/core/types/ChatMode';
+
 import type {
   ProviderCapabilities,
   ProviderChatUIConfig,
@@ -17,6 +19,7 @@ import {
   type ScheduledAnimationFrame,
 } from '../../../utils/animationFrame';
 import { toggleServiceTier } from '../actions/toggleServiceTier';
+import { ChatModeSelector } from './ChatModeSelector';
 
 function runToolbarAction(action: () => Promise<void>, failureMessage: string): void {
   void action().catch(() => {
@@ -40,6 +43,8 @@ export interface ToolbarCallbacks {
   onEffortLevelChange: (effort: string) => Promise<void>;
   onServiceTierChange: (serviceTier: string) => Promise<void>;
   onPermissionModeChange: (mode: string) => Promise<void>;
+  getChatMode: () => ChatMode;
+  onChatModeChange: (mode: ChatMode) => Promise<void>;
   getSettings: () => ToolbarSettings;
   getEnvironmentVariables?: () => string;
   getUIConfig: () => ProviderChatUIConfig;
@@ -725,6 +730,7 @@ export function createInputToolbar(
   parentEl: HTMLElement,
   callbacks: ToolbarCallbacks
 ): {
+  chatModeSelector: ChatModeSelector;
   modelSelector: ModelSelector;
   modeSelector: ModeSelector;
   thinkingBudgetSelector: ThinkingBudgetSelector;
@@ -733,6 +739,10 @@ export function createInputToolbar(
   permissionToggle: PermissionToggle;
   serviceTierToggle: ServiceTierToggle;
 } {
+  const chatModeSelector = new ChatModeSelector(parentEl, {
+    getChatMode: () => callbacks.getChatMode(),
+    onChatModeChange: mode => callbacks.onChatModeChange(mode),
+  });
   const modelSelector = new ModelSelector(parentEl, callbacks);
   const thinkingBudgetSelector = new ThinkingBudgetSelector(parentEl, callbacks);
   const serviceTierToggle = new ServiceTierToggle(parentEl, callbacks);
@@ -742,6 +752,7 @@ export function createInputToolbar(
   const layoutController = new InputToolbarLayoutController(parentEl);
 
   return {
+    chatModeSelector,
     modelSelector,
     modeSelector,
     thinkingBudgetSelector,

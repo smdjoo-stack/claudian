@@ -1,5 +1,7 @@
 import { Notice } from 'obsidian';
 
+import { getTabChatMode, setTabChatMode } from '@/features/chat/state/tabChatMode';
+
 import {
   getProviderSettingsSnapshotWithModel,
   normalizeProviderModelSelection,
@@ -266,6 +268,7 @@ function buildInputToolbar(
         tab.ui.serviceTierToggle.updateDisplay();
         tab.ui.modelSelector.updateDisplay();
         tab.ui.modeSelector.updateDisplay();
+        tab.ui.chatModeSelector.updateDisplay();
         tab.ui.modelSelector.renderOptions();
         tab.ui.modeSelector.renderOptions();
         applyProviderUIGating(tab, plugin);
@@ -347,6 +350,7 @@ function buildInputToolbar(
         getTabChatUIConfig(tab, plugin).applyModeSelection?.(mode, settings);
       });
       tab.ui.modeSelector.updateDisplay();
+      tab.ui.chatModeSelector.updateDisplay();
       tab.ui.modeSelector.renderOptions();
       onUserModified();
     },
@@ -376,6 +380,13 @@ function buildInputToolbar(
     onPermissionModeChange: async (mode: string) => {
       const tab = runtimeRef.requirePublished();
       await updateTabPermissionMode(tab, plugin, mode);
+      onUserModified();
+    },
+    getChatMode: () => getTabChatMode(shell),
+    onChatModeChange: async (mode) => {
+      const tab = runtimeRef.requirePublished();
+      await setTabChatMode(tab, plugin, mode);
+      tab.ui.chatModeSelector.updateDisplay();
       onUserModified();
     },
   });
@@ -441,6 +452,7 @@ export function buildTabRuntimeUI(
     contextTray,
     ...contextManagers,
     modelSelector: toolbar.modelSelector,
+    chatModeSelector: toolbar.chatModeSelector,
     modeSelector: toolbar.modeSelector,
     thinkingBudgetSelector: toolbar.thinkingBudgetSelector,
     permissionToggle: toolbar.permissionToggle,

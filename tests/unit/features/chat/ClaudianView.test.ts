@@ -55,6 +55,9 @@ function createModelRefreshTab(providerId: 'codex' | 'grok') {
         renderOptions: jest.fn(),
         updateDisplay: jest.fn(),
       },
+      chatModeSelector: {
+        updateDisplay: jest.fn(),
+      },
       modelSelector: {
         renderOptions: jest.fn(),
         updateDisplay: jest.fn(),

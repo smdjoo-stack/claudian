@@ -225,6 +225,7 @@ export function refreshTabProviderUI(tab: AssembledTabRuntime): void {
   tab.ui.modelSelector.updateDisplay();
   tab.ui.modelSelector.renderOptions();
   tab.ui.modeSelector.updateDisplay();
+  tab.ui.chatModeSelector.updateDisplay();
   tab.ui.modeSelector.renderOptions();
   tab.ui.thinkingBudgetSelector.updateDisplay();
   tab.ui.permissionToggle.updateDisplay();
