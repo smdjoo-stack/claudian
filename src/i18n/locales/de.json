@@ -73,8 +73,8 @@
           "open": "Agent-Befehle anzeigen",
           "search": "Befehle suchen",
           "noResults": "Kein Befehl passt zu dieser Suche.",
-          "empty": "Keine Vault-Befehle gefunden.",
-          "needsCategory": "Füge einem Befehl eine `category:`-Zeile hinzu, damit er hier erscheint.",
+          "empty": "Keine Befehle in `.claude/commands`. Lege dort eine Befehlsdatei ab, damit sie hier erscheint.",
+          "needsCategory": "Befehle gefunden, aber keiner hat eine `category:`-Zeile. Füge sie im Frontmatter eines Befehls hinzu, damit er hier erscheint.",
           "loading": "Befehle werden geladen…",
           "retry": "Erneut versuchen"
       }

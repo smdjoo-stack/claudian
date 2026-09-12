@@ -122,10 +122,13 @@
 .claudian-chat-mode-command-status {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 8px;
   color: var(--text-muted);
   font-size: var(--font-ui-smaller);
+  line-height: 1.5;
+  text-wrap: pretty;
 }
 
 .claudian-chat-mode-command-retry {

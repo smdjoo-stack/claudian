@@ -73,8 +73,8 @@
           "open": "에이전트 명령어 보기",
           "search": "명령어 검색",
           "noResults": "검색과 일치하는 명령어가 없습니다.",
-          "empty": "볼트 명령어가 없습니다.",
-          "needsCategory": "명령어에 `category:` 줄을 추가하면 여기에 표시됩니다.",
+          "empty": "`.claude/commands` 폴더에 명령어가 없습니다. 이 폴더에 명령어 .md 파일을 두면 여기에 나옵니다.",
+          "needsCategory": "명령어는 있지만 `category:` 줄이 없습니다. 명령어 파일 맨 위 프론트매터에 `category: 이름` 한 줄을 넣으면 여기에 나옵니다.",
           "loading": "명령어를 불러오는 중…",
           "retry": "다시 시도"
       }

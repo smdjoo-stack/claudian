@@ -73,8 +73,8 @@
           "open": "Show agent commands",
           "search": "Search commands",
           "noResults": "No command matches that search.",
-          "empty": "No vault commands found.",
-          "needsCategory": "Add a `category:` line to a command to list it here.",
+          "empty": "No commands in `.claude/commands`. Put a command file there to see it here.",
+          "needsCategory": "Commands found, but none has a `category:` line. Add one to a command's frontmatter to list it here.",
           "loading": "Loading commands…",
           "retry": "Retry"
       }

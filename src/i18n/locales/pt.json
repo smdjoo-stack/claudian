@@ -73,8 +73,8 @@
           "open": "Mostrar comandos do agente",
           "search": "Pesquisar comandos",
           "noResults": "Nenhum comando corresponde a essa pesquisa.",
-          "empty": "Nenhum comando do cofre encontrado.",
-          "needsCategory": "Adicione uma linha `category:` a um comando para listá-lo aqui.",
+          "empty": "Nenhum comando em `.claude/commands`. Coloque um arquivo de comando lá para vê-lo aqui.",
+          "needsCategory": "Há comandos, mas nenhum tem a linha `category:`. Adicione-a ao frontmatter de um comando para vê-lo aqui.",
           "loading": "Carregando comandos…",
           "retry": "Tentar novamente"
       }

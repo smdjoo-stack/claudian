@@ -73,8 +73,8 @@
           "open": "Afficher les commandes de l'agent",
           "search": "Rechercher des commandes",
           "noResults": "Aucune commande ne correspond à cette recherche.",
-          "empty": "Aucune commande de coffre trouvée.",
-          "needsCategory": "Ajoutez une ligne `category:` à une commande pour la lister ici.",
+          "empty": "Aucune commande dans `.claude/commands`. Placez-y un fichier de commande pour le voir ici.",
+          "needsCategory": "Des commandes existent, mais aucune n'a de ligne `category:`. Ajoutez-la dans l'en-tête d'une commande pour la voir ici.",
           "loading": "Chargement des commandes…",
           "retry": "Réessayer"
       }

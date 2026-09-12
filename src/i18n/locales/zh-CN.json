@@ -73,8 +73,8 @@
           "open": "显示智能体命令",
           "search": "搜索命令",
           "noResults": "没有匹配的命令。",
-          "empty": "未找到仓库命令。",
-          "needsCategory": "在命令中添加 `category:` 行即可显示在这里。",
+          "empty": "`.claude/commands` 中没有命令。把命令 .md 文件放进该文件夹即可显示在这里。",
+          "needsCategory": "找到了命令，但都没有 `category:` 行。在命令文件顶部的 frontmatter 中加上 `category: 名称` 即可显示在这里。",
           "loading": "正在加载命令…",
           "retry": "重试"
       }

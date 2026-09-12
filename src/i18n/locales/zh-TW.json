@@ -73,8 +73,8 @@
           "open": "顯示智慧代理指令",
           "search": "搜尋指令",
           "noResults": "沒有符合的指令。",
-          "empty": "找不到保管庫指令。",
-          "needsCategory": "在指令中加入 `category:` 一行即可顯示於此。",
+          "empty": "`.claude/commands` 中沒有指令。將指令 .md 檔案放入該資料夾即可顯示於此。",
+          "needsCategory": "找到了指令，但都沒有 `category:` 行。在指令檔案開頭的 frontmatter 加上 `category: 名稱` 即可顯示於此。",
           "loading": "正在載入指令…",
           "retry": "重試"
       }
