@@ -67,7 +67,16 @@
       "vaultDesc": "讀取並搜尋保管庫，不修改檔案。",
       "agentDesc": "完整權限，可讀取、寫入與編輯保管庫。",
       "switched": "已切換至{mode}模式",
-      "changeFailed": "無法變更聊天模式"
+      "changeFailed": "無法變更聊天模式",
+      "commands": {
+          "label": "智慧代理指令",
+          "open": "顯示智慧代理指令",
+          "search": "搜尋指令",
+          "noResults": "沒有符合的指令。",
+          "empty": "找不到保管庫指令。",
+          "loading": "正在載入指令…",
+          "retry": "重試"
+      }
     }
   },
   "collab": {

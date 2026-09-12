@@ -67,7 +67,16 @@
       "vaultDesc": "Lit et recherche dans le coffre. Ne modifie aucun fichier.",
       "agentDesc": "Accès complet. Lit, écrit et modifie le coffre.",
       "switched": "Passé en mode {mode}",
-      "changeFailed": "Impossible de changer le mode de discussion"
+      "changeFailed": "Impossible de changer le mode de discussion",
+      "commands": {
+          "label": "Commandes de l'agent",
+          "open": "Afficher les commandes de l'agent",
+          "search": "Rechercher des commandes",
+          "noResults": "Aucune commande ne correspond à cette recherche.",
+          "empty": "Aucune commande de coffre trouvée.",
+          "loading": "Chargement des commandes…",
+          "retry": "Réessayer"
+      }
     }
   },
   "collab": {

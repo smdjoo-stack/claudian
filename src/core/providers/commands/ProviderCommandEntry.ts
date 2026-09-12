@@ -10,6 +10,7 @@ export interface ProviderCommandEntry {
   kind: ProviderCommandKind;
   name: string;
   description?: string;
+  category?: string;
   content: string;
   argumentHint?: string;
   allowedTools?: string[];

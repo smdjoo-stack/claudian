@@ -229,6 +229,7 @@ export class SlashCommandSource implements ComposerDropdownSource {
         agent: entry.agent,
         allowedTools: entry.allowedTools,
         argumentHint: entry.argumentHint,
+        category: entry.category,
         content: entry.content,
         context: entry.context,
         description: entry.description,

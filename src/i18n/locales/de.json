@@ -67,7 +67,16 @@
       "vaultDesc": "Liest und durchsucht den Vault. Ändert keine Dateien.",
       "agentDesc": "Volle Rechte. Liest, schreibt und bearbeitet den Vault.",
       "switched": "In den Modus {mode} gewechselt",
-      "changeFailed": "Chatmodus konnte nicht geändert werden"
+      "changeFailed": "Chatmodus konnte nicht geändert werden",
+      "commands": {
+          "label": "Agent-Befehle",
+          "open": "Agent-Befehle anzeigen",
+          "search": "Befehle suchen",
+          "noResults": "Kein Befehl passt zu dieser Suche.",
+          "empty": "Keine Vault-Befehle gefunden.",
+          "loading": "Befehle werden geladen…",
+          "retry": "Erneut versuchen"
+      }
     }
   },
   "collab": {

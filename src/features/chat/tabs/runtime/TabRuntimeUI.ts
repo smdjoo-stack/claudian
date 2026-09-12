@@ -17,10 +17,12 @@ import type {
 } from '../../../../core/providers/types';
 import { MainChatComposerDropdown } from '../../composer/MainChatComposerDropdown';
 import { LinkedContentController } from '../../linked-content';
+import { ChatModeCommandPanel } from '../../ui/ChatModeCommandPanel';
 import { ComposerContextTray } from '../../ui/ComposerContextTray';
 import { FileContextManager } from '../../ui/FileContext';
 import { ImageContextManager } from '../../ui/ImageContext';
 import { createInputToolbar } from '../../ui/InputToolbar';
+import { insertComposerCommand } from '../../ui/insertComposerCommand';
 import { InstructionModeManager as InstructionModeManagerClass } from '../../ui/InstructionModeManager';
 import { NavigationSidebar } from '../../ui/NavigationSidebar';
 import { installTextareaSizing } from '../../ui/textareaSizing';
@@ -169,6 +171,18 @@ function buildInputToolbar(
   const { plugin } = options;
 
   const inputToolbar = dom.inputWrapper.createDiv({ cls: 'claudian-input-toolbar' });
+
+  // Reads the catalog the composer's `/` dropdown uses, so the two pickers
+  // never disagree about which vault commands exist.
+  const commandPanel = new ChatModeCommandPanel(inputToolbar, {
+    getDiscovery: () => shell.providerCatalogResolver()?.discovery ?? null,
+    getHiddenCommands: () => getTabHiddenCommands(shell, plugin),
+    onSelect: command => {
+      insertComposerCommand(dom.inputEl, `${command.insertPrefix}${command.name}`);
+      onUserModified();
+    },
+  });
+  options.registerCleanup('tab chat mode command panel', () => commandPanel.destroy());
 
   const blankTabUIConfigProxy = (): ProviderChatUIConfig => {
     const draftProvider = shell.providerId;
@@ -388,7 +402,7 @@ function buildInputToolbar(
       tab.ui.chatModeSelector.updateDisplay();
       onUserModified();
     },
-  });
+  }, commandPanel);
   options.registerCleanup(
     'tab input toolbar layout',
     () => toolbarComponents.layoutController.destroy(),

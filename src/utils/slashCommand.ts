@@ -10,6 +10,7 @@ import {
 
 export interface ParsedSlashCommandContent {
   description?: string;
+  category?: string;
   argumentHint?: string;
   allowedTools?: string[];
   model?: string;
@@ -44,6 +45,7 @@ export function parsedToSlashCommand(
   return {
     ...identity,
     description: parsed.description,
+    category: parsed.category,
     argumentHint: parsed.argumentHint,
     allowedTools: parsed.allowedTools,
     model: parsed.model,
@@ -68,6 +70,7 @@ export function parseSlashCommandContent(content: string): ParsedSlashCommandCon
   return {
     // Existing fields — support both kebab-case (file format) and camelCase
     description: extractString(fm, 'description'),
+    category: extractString(fm, 'category'),
     argumentHint: extractString(fm, 'argument-hint') ?? extractString(fm, 'argumentHint'),
     allowedTools: extractStringArray(fm, 'allowed-tools') ?? extractStringArray(fm, 'allowedTools'),
     model: extractString(fm, 'model'),
@@ -111,6 +114,9 @@ export function serializeSlashCommandMarkdown(cmd: Partial<SlashCommand>, body: 
   }
   if (cmd.description) {
     lines.push(`description: ${yamlString(cmd.description)}`);
+  }
+  if (cmd.category) {
+    lines.push(`category: ${yamlString(cmd.category)}`);
   }
   if (cmd.argumentHint) {
     lines.push(`argument-hint: ${yamlString(cmd.argumentHint)}`);

@@ -67,7 +67,16 @@
       "vaultDesc": "볼트를 읽고 검색합니다. 파일을 수정하지 않습니다.",
       "agentDesc": "전체 권한. 볼트를 읽고 쓰고 수정합니다.",
       "switched": "{mode} 모드로 전환",
-      "changeFailed": "채팅 모드를 변경하지 못했습니다"
+      "changeFailed": "채팅 모드를 변경하지 못했습니다",
+      "commands": {
+          "label": "에이전트 명령어",
+          "open": "에이전트 명령어 보기",
+          "search": "명령어 검색",
+          "noResults": "검색과 일치하는 명령어가 없습니다.",
+          "empty": "볼트 명령어가 없습니다.",
+          "loading": "명령어를 불러오는 중…",
+          "retry": "다시 시도"
+      }
     }
   },
   "collab": {

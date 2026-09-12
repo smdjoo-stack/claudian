@@ -1,4 +1,4 @@
-import { extractFirstParagraph, parseSlashCommandContent, serializeCommand, serializeSlashCommandMarkdown, validateCommandName, yamlString } from '@/utils/slashCommand';
+import { extractFirstParagraph, parsedToSlashCommand, parseSlashCommandContent, serializeCommand, serializeSlashCommandMarkdown, validateCommandName, yamlString } from '@/utils/slashCommand';
 
 describe('parseSlashCommandContent', () => {
   describe('basic parsing', () => {
@@ -779,5 +779,58 @@ describe('extractFirstParagraph', () => {
   it('skips leading blank lines', () => {
     expect(extractFirstParagraph('\n\nActual first paragraph.\n\nSecond.'))
       .toBe('Actual first paragraph.');
+  });
+});
+
+describe('category frontmatter', () => {
+  it('should parse the category field', () => {
+    const content = `---
+category: 1. 수집 · 위키 만들기
+description: Collect inbox into the wiki
+---
+Do the thing`;
+
+    const parsed = parseSlashCommandContent(content);
+
+    expect(parsed.category).toBe('1. 수집 · 위키 만들기');
+    expect(parsed.description).toBe('Collect inbox into the wiki');
+    expect(parsed.promptContent).toBe('Do the thing');
+  });
+
+  it('should leave category undefined when absent', () => {
+    const content = `---
+description: No category here
+---
+Body`;
+
+    expect(parseSlashCommandContent(content).category).toBeUndefined();
+  });
+
+  it('should carry category through parsedToSlashCommand', () => {
+    const parsed = parseSlashCommandContent(`---
+category: 3. 조회 (읽기 전용)
+description: Read-only status
+---
+Report status`);
+
+    const command = parsedToSlashCommand(parsed, { id: 'cmd-status', name: '상태' });
+
+    expect(command.category).toBe('3. 조회 (읽기 전용)');
+  });
+
+  it('should serialize category so editing a command does not drop it', () => {
+    const markdown = serializeSlashCommandMarkdown(
+      { name: '수집', description: 'Collect', category: '1. 수집 · 위키 만들기' },
+      'Body',
+    );
+
+    expect(markdown).toContain('category: 1. 수집 · 위키 만들기');
+    expect(parseSlashCommandContent(markdown).category).toBe('1. 수집 · 위키 만들기');
+  });
+
+  it('should omit the category line when the command has none', () => {
+    const markdown = serializeSlashCommandMarkdown({ name: 'plain', description: 'Plain' }, 'Body');
+
+    expect(markdown).not.toContain('category:');
   });
 });

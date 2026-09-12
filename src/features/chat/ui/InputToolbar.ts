@@ -19,6 +19,7 @@ import {
   type ScheduledAnimationFrame,
 } from '../../../utils/animationFrame';
 import { toggleServiceTier } from '../actions/toggleServiceTier';
+import type { ChatModeCommandPanelHandle } from './ChatModeSelector';
 import { ChatModeSelector } from './ChatModeSelector';
 
 function runToolbarAction(action: () => Promise<void>, failureMessage: string): void {
@@ -728,7 +729,8 @@ export class InputToolbarLayoutController {
 
 export function createInputToolbar(
   parentEl: HTMLElement,
-  callbacks: ToolbarCallbacks
+  callbacks: ToolbarCallbacks,
+  commandPanel?: ChatModeCommandPanelHandle,
 ): {
   chatModeSelector: ChatModeSelector;
   modelSelector: ModelSelector;
@@ -740,6 +742,7 @@ export function createInputToolbar(
   serviceTierToggle: ServiceTierToggle;
 } {
   const chatModeSelector = new ChatModeSelector(parentEl, {
+    commandPanel,
     getChatMode: () => callbacks.getChatMode(),
     onChatModeChange: mode => callbacks.onChatModeChange(mode),
   });

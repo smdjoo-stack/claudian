@@ -67,7 +67,16 @@
       "vaultDesc": "Lê e pesquisa o cofre. Não modifica arquivos.",
       "agentDesc": "Acesso total. Lê, escreve e edita o cofre.",
       "switched": "Alternado para o modo {mode}",
-      "changeFailed": "Não foi possível alterar o modo de conversa"
+      "changeFailed": "Não foi possível alterar o modo de conversa",
+      "commands": {
+          "label": "Comandos do agente",
+          "open": "Mostrar comandos do agente",
+          "search": "Pesquisar comandos",
+          "noResults": "Nenhum comando corresponde a essa pesquisa.",
+          "empty": "Nenhum comando do cofre encontrado.",
+          "loading": "Carregando comandos…",
+          "retry": "Tentar novamente"
+      }
     }
   },
   "collab": {

@@ -1,0 +1,156 @@
+/* Zero-size flex item: the panel positions against this, not the toolbar. */
+.claudian-chat-mode-command-anchor {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+.claudian-chat-mode-command-panel {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: max-content;
+  min-width: 220px;
+  max-width: min(360px, 80vw);
+  max-height: 320px;
+  padding: 6px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 25%);
+}
+
+.claudian-chat-mode-command-search {
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-modifier-form-field);
+  box-shadow: none;
+  color: var(--text-normal);
+  font: inherit;
+  font-size: var(--font-ui-smaller);
+}
+
+.claudian-chat-mode-command-search:hover {
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-modifier-form-field);
+  box-shadow: none;
+}
+
+.claudian-chat-mode-command-search:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: none;
+}
+
+.claudian-chat-mode-command-search::placeholder {
+  color: var(--text-muted);
+}
+
+.claudian-chat-mode-command-results {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.claudian-chat-mode-command-group-heading {
+  padding: 6px 8px 2px 8px;
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+  font-weight: var(--font-medium);
+}
+
+.claudian-chat-mode-command-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.claudian-chat-mode-command-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--font-ui-smaller);
+  text-align: left;
+  cursor: pointer;
+}
+
+.claudian-chat-mode-command-item:hover,
+.claudian-chat-mode-command-item:focus-visible {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-normal);
+}
+
+.claudian-chat-mode-command-item:focus-visible {
+  outline: 1px solid var(--interactive-accent);
+  outline-offset: -1px;
+}
+
+.claudian-chat-mode-command-name {
+  flex-shrink: 0;
+  color: var(--text-normal);
+  font-family: var(--font-monospace);
+}
+
+.claudian-chat-mode-command-detail {
+  overflow: hidden;
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.claudian-chat-mode-command-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.claudian-chat-mode-command-retry {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--font-ui-smaller);
+  cursor: pointer;
+}
+
+.claudian-chat-mode-command-retry:hover,
+.claudian-chat-mode-command-retry:focus-visible {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-normal);
+}
+
+/* Marks the one segment that also opens a picker. */
+.claudian-chat-mode-segment--has-panel::after {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  border-right: 3px solid transparent;
+  border-bottom: 3px solid currentcolor;
+  border-left: 3px solid transparent;
+  vertical-align: middle;
+}

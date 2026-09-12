@@ -67,7 +67,16 @@
       "vaultDesc": "Reads and searches the Vault. Cannot modify files.",
       "agentDesc": "Full access. Reads, writes, and edits the Vault.",
       "switched": "Switched to {mode} mode",
-      "changeFailed": "Failed to change chat mode"
+      "changeFailed": "Failed to change chat mode",
+      "commands": {
+          "label": "Agent commands",
+          "open": "Show agent commands",
+          "search": "Search commands",
+          "noResults": "No command matches that search.",
+          "empty": "No vault commands found.",
+          "loading": "Loading commands…",
+          "retry": "Retry"
+      }
     }
   },
   "collab": {

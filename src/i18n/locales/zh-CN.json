@@ -67,7 +67,16 @@
       "vaultDesc": "读取并搜索仓库，不修改文件。",
       "agentDesc": "完全权限，可读取、写入和编辑仓库。",
       "switched": "已切换到{mode}模式",
-      "changeFailed": "无法更改聊天模式"
+      "changeFailed": "无法更改聊天模式",
+      "commands": {
+          "label": "智能体命令",
+          "open": "显示智能体命令",
+          "search": "搜索命令",
+          "noResults": "没有匹配的命令。",
+          "empty": "未找到仓库命令。",
+          "loading": "正在加载命令…",
+          "retry": "重试"
+      }
     }
   },
   "collab": {
