@@ -4,6 +4,7 @@ import { t } from '@/i18n/i18n';
 import { normalizeArgumentHint } from '@/utils/slashCommand';
 
 import { groupCommandsByCategory } from './chatModeCommandGroups';
+import { commandSummary } from './commandSummary';
 
 export interface ChatModeCommandPanelOptions {
   /** Null while the tab has no provider catalog bound. */
@@ -222,9 +223,10 @@ export class ChatModeCommandPanel {
         cls: 'claudian-chat-mode-command-name',
         text: `${command.displayPrefix}${command.name}`,
       });
+      const summary = commandSummary(command.description);
       const detail = command.argumentHint
-        ? `${command.description ?? ''} ${normalizeArgumentHint(command.argumentHint)}`.trim()
-        : command.description;
+        ? `${summary ?? ''} ${normalizeArgumentHint(command.argumentHint)}`.trim()
+        : summary;
       if (detail) {
         itemEl.createSpan({ cls: 'claudian-chat-mode-command-detail', text: detail });
       }
