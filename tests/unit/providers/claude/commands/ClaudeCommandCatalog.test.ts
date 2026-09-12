@@ -61,6 +61,23 @@ describe('ClaudeCommandCatalog', () => {
       expect(entries.find(entry => entry.name === '수집')?.category).toBe('1. 수집 · 위키 만들기');
     });
 
+    it('keeps the vault summary on a command the SDK also reports', async () => {
+      const adapter = createMockAdapter({
+        '.claude/commands/수집.md': '---\nsummary: 인박스 → 위키\ndescription: A long sentence for the agent.\n---\nBody',
+      });
+      const catalog = new ClaudeCommandCatalog(
+        new SlashCommandStorage(adapter),
+        new SkillStorage(adapter),
+      );
+      catalog.setCommandSnapshot([
+        { id: 'sdk:수집', name: '수집', description: 'A long sentence for the agent.', content: '', source: 'sdk' },
+      ]);
+
+      const entries = await catalog.listDropdownEntries({ includeBuiltIns: false });
+
+      expect(entries.find(entry => entry.name === '수집')?.summary).toBe('인박스 → 위키');
+    });
+
     it('leaves category undefined for an SDK command with no vault file', async () => {
       const adapter = createMockAdapter({});
       const catalog = new ClaudeCommandCatalog(

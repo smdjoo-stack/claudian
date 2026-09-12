@@ -35,6 +35,7 @@ export interface SlashCommand {
   name: string;                // Command name used after / (e.g., "review-code")
   description?: string;        // Optional description shown in dropdown
   category?: string;           // Optional group heading for command pickers (e.g. "1. Capture")
+  summary?: string;            // Optional short label for command pickers, in place of description
   argumentHint?: string;       // Placeholder text for arguments (e.g., "[file] [focus]")
   allowedTools?: string[];     // Restrict tools when command is used
   model?: string;              // Optional provider-specific model override

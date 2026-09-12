@@ -223,7 +223,7 @@ export class ChatModeCommandPanel {
         cls: 'claudian-chat-mode-command-name',
         text: `${command.displayPrefix}${command.name}`,
       });
-      const summary = commandSummary(command.description);
+      const summary = command.summary?.trim() || commandSummary(command.description);
       const detail = command.argumentHint
         ? `${summary ?? ''} ${normalizeArgumentHint(command.argumentHint)}`.trim()
         : summary;

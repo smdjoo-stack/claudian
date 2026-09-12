@@ -834,3 +834,31 @@ Report status`);
     expect(markdown).not.toContain('category:');
   });
 });
+
+describe('summary frontmatter', () => {
+  it('parses the summary field', () => {
+    const parsed = parseSlashCommandContent(`---
+summary: 인박스 전체 → 위키
+description: A much longer sentence written for the agent.
+---
+Body`);
+
+    expect(parsed.summary).toBe('인박스 전체 → 위키');
+    expect(parsed.description).toBe('A much longer sentence written for the agent.');
+  });
+
+  it('carries summary through parsedToSlashCommand', () => {
+    const parsed = parseSlashCommandContent(`---
+summary: 볼트 현황
+---
+Body`);
+
+    expect(parsedToSlashCommand(parsed, { id: 'c', name: '상태' }).summary).toBe('볼트 현황');
+  });
+
+  it('round-trips summary through serialization', () => {
+    const markdown = serializeSlashCommandMarkdown({ name: '수집', summary: '인박스 → 위키' }, 'Body');
+
+    expect(parseSlashCommandContent(markdown).summary).toBe('인박스 → 위키');
+  });
+});

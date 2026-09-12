@@ -11,6 +11,7 @@ export interface ProviderCommandEntry {
   name: string;
   description?: string;
   category?: string;
+  summary?: string;
   content: string;
   argumentHint?: string;
   allowedTools?: string[];

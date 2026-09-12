@@ -19,6 +19,7 @@ function slashCommandToEntry(cmd: SlashCommand): ProviderCommandEntry {
     name: cmd.name,
     description: cmd.description,
     category: cmd.category,
+    summary: cmd.summary,
     content: cmd.content,
     argumentHint: cmd.argumentHint,
     allowedTools: cmd.allowedTools,
@@ -43,6 +44,7 @@ function entryToSlashCommand(entry: ProviderCommandEntry): SlashCommand {
     name: entry.name,
     description: entry.description,
     category: entry.category,
+    summary: entry.summary,
     content: entry.content,
     argumentHint: entry.argumentHint,
     allowedTools: entry.allowedTools,
@@ -114,24 +116,27 @@ export class ClaudeCommandCatalog implements ProviderCommandCatalog, ProviderVau
       .filter(cmd => !BUILTIN_HIDDEN_COMMANDS.has(cmd.name.toLowerCase()))
       .map(slashCommandToEntry);
     if (runtimeEntries.length > 0) {
-      return await this.withVaultCategories(runtimeEntries, context.signal);
+      return await this.withVaultMetadata(runtimeEntries, context.signal);
     }
     return this.listVaultEntries(context.signal);
   }
 
   /**
-   * Restores `category` on SDK-reported commands.
+   * Restores `category` and `summary` on SDK-reported commands.
    *
-   * The SDK reports name, description, and argument hint only, so a custom
-   * frontmatter field is dropped even though the SDK scanned the very file
-   * that declares it. Re-reading the vault command files is the only way to
-   * get it back. A command with no vault file keeps no category.
+   * The SDK reports name, description, and argument hint only, so custom
+   * frontmatter fields are dropped even though the SDK scanned the very files
+   * that declare them. Re-reading the vault command files is the only way to
+   * get them back. A command with no vault file keeps neither.
    */
-  private async withVaultCategories(
+  private async withVaultMetadata(
     entries: ProviderCommandEntry[],
     signal?: AbortSignal,
   ): Promise<ProviderCommandEntry[]> {
-    if (entries.every(entry => entry.category !== undefined)) {
+    const needsMetadata = entries.some(
+      entry => entry.category === undefined || entry.summary === undefined,
+    );
+    if (!needsMetadata) {
       return entries;
     }
     let vaultCommands: SlashCommand[];
@@ -142,18 +147,22 @@ export class ClaudeCommandCatalog implements ProviderCommandCatalog, ProviderVau
     }
     signal?.throwIfAborted();
 
-    const categories = new Map<string, string>();
+    const byName = new Map<string, SlashCommand>();
     for (const command of vaultCommands) {
-      if (command.category) categories.set(command.name.toLowerCase(), command.category);
+      byName.set(command.name.toLowerCase(), command);
     }
-    if (categories.size === 0) {
+    if (byName.size === 0) {
       return entries;
     }
-    return entries.map(entry => (
-      entry.category === undefined
-        ? { ...entry, category: categories.get(entry.name.toLowerCase()) }
-        : entry
-    ));
+    return entries.map(entry => {
+      const vault = byName.get(entry.name.toLowerCase());
+      if (!vault) return entry;
+      return {
+        ...entry,
+        category: entry.category ?? vault.category,
+        summary: entry.summary ?? vault.summary,
+      };
+    });
   }
 
   /** Probe the SDK for commands. Deduplicates concurrent calls. */
