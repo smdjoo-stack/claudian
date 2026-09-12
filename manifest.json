@@ -1,10 +1,10 @@
 {
   "id": "jclaudian",
   "name": "Jclaudian",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "minAppVersion": "1.13.0",
-  "description": "Embeds Claude Code, Codex, and other coding agents as AI collaborators in your vault, with a three-way chat mode that controls how much of the vault the agent may touch: General (no tools), Vault (read-only search), Agent (full read/write). A fork of Claudian by Yishen Tu.",
-  "author": "joo (fork) — based on Claudian by Yishen Tu",
+  "description": "Embeds Claude Code, Codex, and other coding agents as AI collaborators in your vault, with a three-way chat mode that controls how much of the vault the agent may touch: General (no tools), Vault (read-only search), Agent (full read/write). The Agent mode button also opens a picker for your vault's own slash commands. A fork of Claudian by Yishen Tu.",
+  "author": "joo (fork) \u2014 based on Claudian by Yishen Tu",
   "authorUrl": "https://github.com/smdjoo-stack/claudian",
   "isDesktopOnly": true
 }

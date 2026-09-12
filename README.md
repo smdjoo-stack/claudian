@@ -2,7 +2,7 @@
 
 # Jclaudian
 
-An Obsidian plugin that embeds AI coding agents (Claude Code, Codex, Grok, OpenCode, Pi) in your vault — with a **chat mode switch** that decides how much of the vault the agent may touch.
+An Obsidian plugin that embeds AI coding agents (Claude Code, Codex, Grok, OpenCode, Pi) in your vault — with a **chat mode switch** that decides how much of the vault the agent may touch, and a **command picker** so you can run your vault's commands without remembering their names.
 
 Jclaudian is a fork of [Claudian](https://github.com/YishenTu/claudian) by Yishen Tu. See [Provenance](#provenance) for exactly what it is based on and what was changed.
 
@@ -43,6 +43,37 @@ Modes are not a prompt trick. The plugin projects the mode onto the provider-neu
 So on Claude, Pi and OpenCode, General mode is a real denial. On Codex and Grok it is a strong request plus a sandbox. This is a property of those CLIs, not of this plugin — the plugin does not modify provider code.
 
 One thing General mode deliberately does **not** block: context you attach yourself. Files added with `@`, the current editor selection, and images still reach the model, and the General-mode system prompt says so. "No tools" means the agent cannot go looking through your vault on its own — not that it is blind to what you handed it.
+
+## The command picker
+
+Vault commands live in `.claude/commands/` and you run them by typing `/`. That works if you remember the names. If you have a dozen of them and use each one every few days, you don't.
+
+Clicking the **Agent** segment opens a picker of your vault's own commands, grouped the way you group them. Clicking one writes it into the composer and stops there — it does not send. You read what you are about to run, add arguments, and press Enter yourself. Commands that rewrite your vault should not fire on a stray click.
+
+The picker reads the same catalog as the `/` dropdown, so a command can never appear in one and not the other.
+
+### Opting a command in
+
+A command joins the picker by declaring a `category` in its frontmatter:
+
+```yaml
+---
+category: 1. Capture
+summary: Inbox → wiki
+description: Preserve the whole inbox as source material, build wiki notes, link the MOC.
+---
+```
+
+| Field | Effect |
+|---|---|
+| `category` | The group heading. **Required to appear in the picker** — a command without one stays available by typing `/`. |
+| `summary` | The short label shown beside the command name. Optional; falls back to the first sentence of `description`. |
+
+`description` is left alone. It is written for the agent, and it keeps doing that job.
+
+A leading `1. ` on a category sets the group's position and is stripped from the heading. Categories usually describe a workflow — capture, then draft, then review — and alphabetical order would scramble that. Categories without a number sort alphabetically after the numbered ones.
+
+Both fields survive command discovery. The Claude Code SDK reports only name, description, and argument hint, so Jclaudian re-reads the command files to restore them.
 
 ## Requirements
 
@@ -132,7 +163,9 @@ Chat modes do not change any of the above. General mode grants no tools, so a Ge
 
 ### What this fork changed
 
-Added, all inside `src/features/chat/**`, `src/core/types/`, `src/core/prompt/` and `src/i18n/`:
+Added, mostly inside `src/features/chat/**`, `src/core/types/`, `src/core/prompt/` and `src/i18n/`:
+
+**Chat modes**
 
 - `ChatMode` type with three modes, plus normalization that degrades to General on a corrupted value
 - `ChatModeProjection` — the single place that translates a mode into a tool policy and system-prompt shape
@@ -142,11 +175,22 @@ Added, all inside `src/features/chat/**`, `src/core/types/`, `src/core/prompt/` 
 - A segmented mode selector in the composer toolbar (native buttons, `aria-pressed`, keyboard and screen-reader accessible)
 - A divider in the message flow where the mode changed
 - The "Default chat mode" setting
+
+**Command picker**
+
+- `ChatModeCommandPanel` — the picker the Agent segment opens, with search, grouping, keyboard navigation, and the loading, empty, and failed states of command discovery
+- `category` and `summary` frontmatter fields, parsed, serialized, and carried through the provider command catalog
+- Restoration of both fields after the Claude Code SDK reports a command without them
+- Insertion into the composer at the caret, sharing the trailing-space handling the `/` dropdown already used
+
+**Both**
+
 - Strings for all ten locales the plugin supports
 
 Deliberately **not** changed:
 
-- Nothing under `src/providers/**` or `src/core/execution/**`. The tool policies this feature relies on (`passive`, `read-only`, `provider-default`) already existed and every provider backend already implemented them, so no provider code needed to change. Agent mode therefore produces byte-for-byte the same request Claudian always did.
+- Command execution. The picker only writes text into the composer; what happens after Enter is untouched.
+- Nothing under `src/core/execution/**`, and inside `src/providers/**` only Claude's command catalog, which restores the two frontmatter fields its SDK does not report. The tool policies the chat modes rely on (`passive`, `read-only`, `provider-default`) already existed and every provider backend already implemented them. Agent mode therefore produces byte-for-byte the same request Claudian always did.
 - Internal identifiers: CSS classes, view types and the `.claudian` storage folder keep their original names. Only the plugin's public identity (`id`, `name`) was renamed, so your existing session data is still found.
 - The npm package name in `package.json` also stays `claudian`. It is a private field that is never published, and both `bun.lock` and `package-lock.json` record it — CI validates them with `--frozen-lockfile`, so renaming it would break the build for no user-visible gain.
 
