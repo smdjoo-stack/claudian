@@ -74,6 +74,7 @@
           "search": "Search commands",
           "noResults": "No command matches that search.",
           "empty": "No vault commands found.",
+          "needsCategory": "Add a `category:` line to a command to list it here.",
           "loading": "Loading commands…",
           "retry": "Retry"
       }

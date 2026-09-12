@@ -1,13 +1,9 @@
 import type { ProviderCommandEntry } from '@/core/providers/commands/ProviderCommandEntry';
 
-/**
- * A category's commands, ready to render as one labelled section.
- *
- * `heading` is null for commands whose definition declares no `category`.
- */
+/** A category's commands, ready to render as one labelled section. */
 export interface ChatModeCommandGroup {
   readonly commands: readonly ProviderCommandEntry[];
-  readonly heading: string | null;
+  readonly heading: string;
 }
 
 /**
@@ -41,18 +37,21 @@ function byName(left: ProviderCommandEntry, right: ProviderCommandEntry): number
   return left.name.localeCompare(right.name);
 }
 
+/**
+ * Groups commands for the picker, dropping any that declare no `category`.
+ *
+ * Declaring a category is how a vault opts a command into the picker, which
+ * keeps the list curated instead of showing everything the provider knows.
+ * Omitted commands stay available by typing `/`.
+ */
 export function groupCommandsByCategory(
   entries: readonly ProviderCommandEntry[],
 ): readonly ChatModeCommandGroup[] {
   const categorized = new Map<string, { order: CategoryOrder; commands: ProviderCommandEntry[] }>();
-  const uncategorized: ProviderCommandEntry[] = [];
 
   for (const entry of entries) {
     const raw = entry.category?.trim();
-    if (!raw) {
-      uncategorized.push(entry);
-      continue;
-    }
+    if (!raw) continue;
     const order = readCategory(raw);
     const existing = categorized.get(order.heading);
     if (existing) {
@@ -62,7 +61,7 @@ export function groupCommandsByCategory(
     categorized.set(order.heading, { order, commands: [entry] });
   }
 
-  const groups: ChatModeCommandGroup[] = [...categorized.values()]
+  return [...categorized.values()]
     .sort((left, right) => (
       left.order.rank - right.order.rank
       || left.order.position - right.order.position
@@ -72,9 +71,4 @@ export function groupCommandsByCategory(
       commands: [...commands].sort(byName),
       heading: order.heading,
     }));
-
-  if (uncategorized.length > 0) {
-    groups.push({ commands: [...uncategorized].sort(byName), heading: null });
-  }
-  return groups;
 }

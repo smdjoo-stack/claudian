@@ -74,6 +74,7 @@
           "search": "Rechercher des commandes",
           "noResults": "Aucune commande ne correspond à cette recherche.",
           "empty": "Aucune commande de coffre trouvée.",
+          "needsCategory": "Ajoutez une ligne `category:` à une commande pour la lister ici.",
           "loading": "Chargement des commandes…",
           "retry": "Réessayer"
       }

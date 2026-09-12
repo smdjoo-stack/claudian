@@ -74,6 +74,7 @@
           "search": "명령어 검색",
           "noResults": "검색과 일치하는 명령어가 없습니다.",
           "empty": "볼트 명령어가 없습니다.",
+          "needsCategory": "명령어에 `category:` 줄을 추가하면 여기에 표시됩니다.",
           "loading": "명령어를 불러오는 중…",
           "retry": "다시 시도"
       }

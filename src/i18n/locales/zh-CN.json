@@ -74,6 +74,7 @@
           "search": "搜索命令",
           "noResults": "没有匹配的命令。",
           "empty": "未找到仓库命令。",
+          "needsCategory": "在命令中添加 `category:` 行即可显示在这里。",
           "loading": "正在加载命令…",
           "retry": "重试"
       }

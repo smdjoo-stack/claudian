@@ -179,6 +179,27 @@ describe('ChatModeCommandPanel', () => {
     });
   });
 
+  describe('category opt-in', () => {
+    it('omits a command that declares no category', () => {
+      const uncategorized = entry('점검', undefined, 'Run the monthly checklist');
+      const { container, panel } = setup({
+        snapshot: { status: 'ready', items: [VAULT_COMMANDS[0], uncategorized] },
+      });
+      panel.open();
+      expect(within(container).getByRole('button', { name: /\/수집/ })).toBeDefined();
+      expect(within(container).queryByRole('button', { name: /\/점검/ })).toBeNull();
+    });
+
+    it('explains how to opt in when no command declares a category', () => {
+      const { container, panel } = setup({
+        snapshot: { status: 'ready', items: [entry('점검'), entry('상태')] },
+      });
+      panel.open();
+      expect(within(container).getByRole('status').textContent).toContain('category');
+      expect(within(container).queryByRole('button', { name: /^\// })).toBeNull();
+    });
+  });
+
   describe('hidden commands', () => {
     it('omits commands hidden from the slash dropdown', () => {
       const { container, panel } = setup({ hidden: new Set(['상태']) });

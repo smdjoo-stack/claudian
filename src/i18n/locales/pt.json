@@ -74,6 +74,7 @@
           "search": "Pesquisar comandos",
           "noResults": "Nenhum comando corresponde a essa pesquisa.",
           "empty": "Nenhum comando do cofre encontrado.",
+          "needsCategory": "Adicione uma linha `category:` a um comando para listá-lo aqui.",
           "loading": "Carregando comandos…",
           "retry": "Tentar novamente"
       }

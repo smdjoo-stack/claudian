@@ -60,22 +60,22 @@ describe('groupCommandsByCategory', () => {
     expect(groups.map(group => group.heading)).toEqual(['First', 'Apple', 'Zebra']);
   });
 
-  it('puts uncategorized commands last under no heading', () => {
+  it('drops commands that declare no category', () => {
     const groups = groupCommandsByCategory([
       entry('loose'),
       entry('수집', '1. 수집 · 위키 만들기'),
     ]);
 
-    expect(groups.map(group => group.heading)).toEqual(['수집 · 위키 만들기', null]);
-    expect(groups[1].commands.map(command => command.name)).toEqual(['loose']);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].commands.map(command => command.name)).toEqual(['수집']);
   });
 
-  it('returns a single unheaded group when nothing is categorized', () => {
-    const groups = groupCommandsByCategory([entry('b'), entry('a')]);
+  it('returns no groups when nothing is categorized', () => {
+    expect(groupCommandsByCategory([entry('b'), entry('a')])).toEqual([]);
+  });
 
-    expect(groups).toHaveLength(1);
-    expect(groups[0].heading).toBeNull();
-    expect(groups[0].commands.map(command => command.name)).toEqual(['a', 'b']);
+  it('treats a blank category as no category', () => {
+    expect(groupCommandsByCategory([entry('b', '   ')])).toEqual([]);
   });
 
   it('returns no groups for no commands', () => {

@@ -74,6 +74,7 @@
           "search": "搜尋指令",
           "noResults": "沒有符合的指令。",
           "empty": "找不到保管庫指令。",
+          "needsCategory": "在指令中加入 `category:` 一行即可顯示於此。",
           "loading": "正在載入指令…",
           "retry": "重試"
       }

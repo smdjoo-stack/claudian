@@ -176,7 +176,13 @@ export class ChatModeCommandPanel {
       return;
     }
 
-    for (const group of groupCommandsByCategory(visible)) {
+    const groups = groupCommandsByCategory(visible);
+    if (groups.length === 0) {
+      // Commands exist but none opted in, so say how rather than look broken.
+      this.renderStatus(t('chat.chatMode.commands.needsCategory'));
+      return;
+    }
+    for (const group of groups) {
       this.renderGroup(group.heading, group.commands);
     }
   }
@@ -194,22 +200,18 @@ export class ChatModeCommandPanel {
   }
 
   private renderGroup(
-    heading: string | null,
+    heading: string,
     commands: readonly ProviderCommandEntry[],
   ): void {
     const groupEl = this.resultsEl.createDiv({ cls: 'claudian-chat-mode-command-group' });
+    const headingId = `claudian-chat-mode-command-group-${this.resultsEl.childElementCount}`;
+    const headingEl = groupEl.createDiv({
+      cls: 'claudian-chat-mode-command-group-heading',
+      text: heading,
+    });
+    headingEl.id = headingId;
     const listEl = groupEl.createEl('ul', { cls: 'claudian-chat-mode-command-list' });
-
-    if (heading) {
-      const headingId = `claudian-chat-mode-command-group-${this.resultsEl.childElementCount}`;
-      const headingEl = groupEl.createDiv({
-        cls: 'claudian-chat-mode-command-group-heading',
-        text: heading,
-      });
-      headingEl.id = headingId;
-      groupEl.insertBefore(headingEl, listEl);
-      listEl.setAttribute('aria-labelledby', headingId);
-    }
+    listEl.setAttribute('aria-labelledby', headingId);
 
     for (const command of commands) {
       const itemEl = listEl.createEl('li').createEl('button', {

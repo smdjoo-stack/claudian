@@ -74,6 +74,7 @@
           "search": "Befehle suchen",
           "noResults": "Kein Befehl passt zu dieser Suche.",
           "empty": "Keine Vault-Befehle gefunden.",
+          "needsCategory": "Füge einem Befehl eine `category:`-Zeile hinzu, damit er hier erscheint.",
           "loading": "Befehle werden geladen…",
           "retry": "Erneut versuchen"
       }

@@ -21,7 +21,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 140px;
+  min-height: 200px;
   border: 1px solid var(--claudian-input-wrapper-border-color);
   border-radius: 6px;
   background: var(--background-primary);
