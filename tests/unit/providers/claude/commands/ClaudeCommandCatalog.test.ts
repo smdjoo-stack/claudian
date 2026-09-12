@@ -42,6 +42,40 @@ function createMockAdapter(files: Record<string, string> = {}): VaultFileAdapter
 
 describe('ClaudeCommandCatalog', () => {
   describe('listDropdownEntries', () => {
+    it('keeps the vault category on a command the SDK also reports', async () => {
+      // The SDK reports name/description only, so the category has to come
+      // from the command file the SDK itself scanned.
+      const adapter = createMockAdapter({
+        '.claude/commands/수집.md': '---\ncategory: 1. 수집 · 위키 만들기\ndescription: Collect the inbox\n---\nBody',
+      });
+      const catalog = new ClaudeCommandCatalog(
+        new SlashCommandStorage(adapter),
+        new SkillStorage(adapter),
+      );
+      catalog.setCommandSnapshot([
+        { id: 'sdk:수집', name: '수집', description: 'Collect the inbox', content: '', source: 'sdk' },
+      ]);
+
+      const entries = await catalog.listDropdownEntries({ includeBuiltIns: false });
+
+      expect(entries.find(entry => entry.name === '수집')?.category).toBe('1. 수집 · 위키 만들기');
+    });
+
+    it('leaves category undefined for an SDK command with no vault file', async () => {
+      const adapter = createMockAdapter({});
+      const catalog = new ClaudeCommandCatalog(
+        new SlashCommandStorage(adapter),
+        new SkillStorage(adapter),
+      );
+      catalog.setCommandSnapshot([
+        { id: 'sdk:commit', name: 'commit', description: 'Create git commit', content: '', source: 'sdk' },
+      ]);
+
+      const entries = await catalog.listDropdownEntries({ includeBuiltIns: false });
+
+      expect(entries.find(entry => entry.name === 'commit')?.category).toBeUndefined();
+    });
+
     it('returns SDK runtime commands as ProviderCommandEntry', async () => {
       const adapter = createMockAdapter({});
       const commands = new SlashCommandStorage(adapter);

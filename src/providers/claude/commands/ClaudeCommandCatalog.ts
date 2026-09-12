@@ -114,9 +114,46 @@ export class ClaudeCommandCatalog implements ProviderCommandCatalog, ProviderVau
       .filter(cmd => !BUILTIN_HIDDEN_COMMANDS.has(cmd.name.toLowerCase()))
       .map(slashCommandToEntry);
     if (runtimeEntries.length > 0) {
-      return runtimeEntries;
+      return await this.withVaultCategories(runtimeEntries, context.signal);
     }
     return this.listVaultEntries(context.signal);
+  }
+
+  /**
+   * Restores `category` on SDK-reported commands.
+   *
+   * The SDK reports name, description, and argument hint only, so a custom
+   * frontmatter field is dropped even though the SDK scanned the very file
+   * that declares it. Re-reading the vault command files is the only way to
+   * get it back. A command with no vault file keeps no category.
+   */
+  private async withVaultCategories(
+    entries: ProviderCommandEntry[],
+    signal?: AbortSignal,
+  ): Promise<ProviderCommandEntry[]> {
+    if (entries.every(entry => entry.category !== undefined)) {
+      return entries;
+    }
+    let vaultCommands: SlashCommand[];
+    try {
+      vaultCommands = await this.commandStorage.loadAll();
+    } catch {
+      return entries;
+    }
+    signal?.throwIfAborted();
+
+    const categories = new Map<string, string>();
+    for (const command of vaultCommands) {
+      if (command.category) categories.set(command.name.toLowerCase(), command.category);
+    }
+    if (categories.size === 0) {
+      return entries;
+    }
+    return entries.map(entry => (
+      entry.category === undefined
+        ? { ...entry, category: categories.get(entry.name.toLowerCase()) }
+        : entry
+    ));
   }
 
   /** Probe the SDK for commands. Deduplicates concurrent calls. */
