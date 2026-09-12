@@ -24,6 +24,12 @@
   box-shadow: 0 4px 16px rgb(0 0 0 / 25%);
 }
 
+/* `display: flex` above outranks the user-agent [hidden] rule, so the closed
+   state has to be declared here or the panel never hides. */
+.claudian-chat-mode-command-panel[hidden] {
+  display: none;
+}
+
 .claudian-chat-mode-command-search {
   min-width: 0;
   padding: 4px 8px;
